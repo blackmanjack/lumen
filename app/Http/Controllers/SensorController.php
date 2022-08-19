@@ -20,6 +20,8 @@ class SensorController extends Controller
     public function create(Request $request)
     {
         $data = new Sensor();
+        $data->id_node = $request->id_node;
+        $data->id_hardware = $request->id_hardware;
         $data->name = $request->name;
         $data->unit = $request->unit;
         $save = $data->save();

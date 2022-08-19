@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Channel;
+use App\Models\Hardware;
 
 return new class extends Migration
 {
@@ -13,10 +15,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sensor', function (Blueprint $table) {
+        Schema::create('sensors', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('unit');
+            $table->unsignedBigInteger('id_node')->nullable();
+            $table->foreign('id_node')->references('id')->on('nodes');
+            $table->unsignedBigInteger('id_hardware')->nullable();
+            $table->foreign('id_hardware')->references('id')->on('hardwares');
             $table->timestamps();
         });
     }
@@ -28,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sensor');
+        Schema::dropIfExists('sensors');
     }
 };

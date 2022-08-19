@@ -13,14 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('channel', function (Blueprint $table) {
+        Schema::create('channels', function (Blueprint $table) {
             $table->id();
-            // $table->string('tes');
             $table->float('value');
+            $table->unsignedBigInteger('id_sensor')->nullable();
+            $table->foreign('id_sensor')->references('id')->on('sensors');
             $table->timestamps();
-            // $table->dateTime('updated_at')->nullable()->default(DB::raw('NULL on update CURRENT_TIMESTAMP'));
-            // $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-            // $table->dateTime('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'))->onUpdate(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 

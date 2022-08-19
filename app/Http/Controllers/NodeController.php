@@ -20,6 +20,7 @@ class NodeController extends Controller
     public function create(Request $request)
     {
         $data = new Node();
+        $data->id_hardware = $request->id_hardware;
         $data->name = $request->name;
         $data->location = $request->location;
         $save = $data->save();

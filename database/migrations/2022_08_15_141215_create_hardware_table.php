@@ -3,7 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use App\Models\Node;
+use App\Models\Sensor;
 return new class extends Migration
 {
     /**
@@ -13,7 +14,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('hardware', function (Blueprint $table) {
+        Schema::create('hardwares', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('type');

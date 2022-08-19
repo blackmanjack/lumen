@@ -21,6 +21,7 @@ class ChannelController extends Controller
     {
         $data = new Channel();
         $data->value = $request->value;
+        $data->id_sensor = $request->id_sensor;
         $save = $data->save();
 
         if($save){
