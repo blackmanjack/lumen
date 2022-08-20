@@ -23,6 +23,9 @@ $router->get('/key', function() {
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+//user
+$router->post('/user', 'UserController@create');
+$router->get('/user/activation', 'UserController@activate');
 //node
 $router->post('/node', 'NodeController@create');
 $router->get('/node', 'NodeController@showAll');
