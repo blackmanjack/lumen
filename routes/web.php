@@ -24,8 +24,10 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 //user
-$router->post('/user', 'UserController@create');
+$router->post('/user/signup', 'UserController@create');
 $router->get('/user/activation', 'UserController@activate');
+$router->put('/user/{id}', 'UserController@update');
+$router->delete('/user/{id}', 'UserController@delete');
 //node
 $router->post('/node', 'NodeController@create');
 $router->get('/node', 'NodeController@showAll');

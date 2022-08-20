@@ -63,7 +63,6 @@ class UserController extends Controller
                 
                 $message = 'Your account has been activated';
                 return response()->json($res, 200);
-                // return response()->$data;
             }else{
                 $message = 'Your account has already activated';
                 return response()->json($message, 400);
@@ -77,15 +76,18 @@ class UserController extends Controller
         
     }
 
-    // public function showAll()
-    // {
-    //     $data = User::all();
-    //     $response=
-    //         // 'data'=> $data
-    //         $data
-    //     ;
-    //     return response($response);
-    // }
+    public function login(Request $request)
+    {
+        // $data = User::all();
+        $data->username = $request->username;
+        $data->password = $request->password;
+        
+        $response=
+            // 'data'=> $data
+            $data
+        ;
+        return response($response);
+    }
 
     // public function showDetailData($id)
     // {
@@ -99,39 +101,75 @@ class UserController extends Controller
     //         }
     // }
 
-    // public function update(Request $request, $id)
-    // {
-    //     $data = User::find($id);
-    //     // dd($request->all());
-    //     // return response($request);
-    //     $update = $data->update([
-    //         'name'=> $request->name,
-    //         'unit'=> $request->unit,
-    //     ]);
+    public function update(Request $request, $id)
+    {
+        // $data = Sensor::find($id);
+        // // dd($request->all());
+        // // return response($request);
+        // $update = $data->update([
+        //     'name'=> $request->name,
+        //     'unit'=> $request->unit,
+        // ]);
+        $oldpasswd = $request->oldpassword;
+        $newpasswd = $request->newpassword;
 
-    //      if($update){
-    //         $message = "Success edit User";
-    //         return response()->json($message, 200);
-    //     }else{
-    //         $message = "Empty Request Body";
-    //         return response()->json($message, 400);
-    //     }
-    //     return response($response);
-    // }
+        // dd($newpasswd);
 
-    // public function delete($id)
-    // {
-    //     $data = User::find($id);
-    //     $delete = $data->delete();
+        //  if($update){
+        //     $message = "Success edit Sensor";
+        //     return response()->json($message, 200);
 
-    //     if($delete){
-    //         $message = "Success delete User, id: $id";
-    //         return response()->json($message, 200);
-    //     }else{
-    //         $message = "Parameter is Invalid";
-    //         return response()->json($message, 404);
-    //     }
-    //     // return response($response);
-    // }
-    //
+        $data = User::find($id);
+        // return response($request);
+        $passwdCheck = DB::table('users')->where('id', $id)->pluck('password')->first();
+
+
+        // // dd($passwdCheck == $newpasswd);
+        if($oldpasswd !== '' || $newpasswd !== ''){
+            // dd($passwdCheck === $oldpasswd && $newpasswd !== '');
+            if($passwdCheck === $oldpasswd && $newpasswd !== ''){
+                $data->password = $newpasswd;
+                $update = $data->save();
+
+                if($update){
+                    $res = ([
+                        'message' => "Success change password",
+                        'data' => $data
+                    ]);
+                    return response()->json($res, 200);
+                }
+                //unused code
+                else{
+                    $message = "Fail change password";
+                    return response()->json($message, 400);
+                }
+            }else if($oldpasswd !== $passwdCheck){
+                $message = "Old password is Invalid";
+                return response()->json($message, 400);
+            }else if($newpasswd === ''){
+                $message = "Missing Parameter newpassword";
+                return response()->json($message, 400);
+            }
+        // dd($passwdCheck === $oldpasswd);
+        }else{
+            $message = "Empty body request";
+            return response()->json($message, 400);
+        }
+
+    }
+
+    public function delete($id)
+    {
+        $data = User::find($id);
+        $delete = $data->delete();
+
+        if($delete){
+            $message = "Success delete User, id: $id";
+            return response()->json($message, 200);
+        }else{
+            $message = "Parameter is Invalid";
+            return response()->json($message, 404);
+        }
+    }
+    
 }
