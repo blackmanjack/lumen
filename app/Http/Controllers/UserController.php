@@ -53,19 +53,28 @@ class UserController extends Controller
     public function activate(Request $request)
     {
         $token = $request->token;
-
-        $statusCheck = DB::table('users')->where('token', $token)->pluck('status')->first();;
-        if($statusCheck === false){
-            $update = DB::table('users')->select('*')->where('token', $token)->update(['status' => 1]);
+        // $token = Str::random(32);
+        $findObj = DB::table('users')->where('token', $token)->pluck('token')->first();
+        // dd($findObj);
+        if($findObj) {
+            $statusCheck = DB::table('users')->where('token', $token)->pluck('status')->first();
+            if($statusCheck === false){
+                $update = DB::table('users')->select('*')->where('token', $token)->update(['status' => 1]);
+                
+                $message = 'Your account has been activated';
+                return response()->json($res, 200);
+                // return response()->$data;
+            }else{
+                $message = 'Your account has already activated';
+                return response()->json($message, 400);
+            }
+        }else {
             $res = ([
-                'message'=> 'Your account has been activated',
+                'message'=> 'Token Not Found',
             ]);
-            return response()->json($res, 200);
-            // return response()->$data;
-        }else{
-            $message = "Your account has already activated";
-            return response()->json($message, 400);
+            return response()->json($res, 404);
         }
+        
     }
 
     // public function showAll()
