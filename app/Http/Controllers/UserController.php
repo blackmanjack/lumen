@@ -103,30 +103,13 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        // $data = Sensor::find($id);
-        // // dd($request->all());
-        // // return response($request);
-        // $update = $data->update([
-        //     'name'=> $request->name,
-        //     'unit'=> $request->unit,
-        // ]);
         $oldpasswd = $request->oldpassword;
         $newpasswd = $request->newpassword;
 
-        // dd($newpasswd);
-
-        //  if($update){
-        //     $message = "Success edit Sensor";
-        //     return response()->json($message, 200);
-
         $data = User::find($id);
-        // return response($request);
         $passwdCheck = DB::table('users')->where('id', $id)->pluck('password')->first();
 
-
-        // // dd($passwdCheck == $newpasswd);
         if($oldpasswd !== '' || $newpasswd !== ''){
-            // dd($passwdCheck === $oldpasswd && $newpasswd !== '');
             if($passwdCheck === $oldpasswd && $newpasswd !== ''){
                 $data->password = $newpasswd;
                 $update = $data->save();
@@ -150,7 +133,6 @@ class UserController extends Controller
                 $message = "Missing Parameter newpassword";
                 return response()->json($message, 400);
             }
-        // dd($passwdCheck === $oldpasswd);
         }else{
             $message = "Empty body request";
             return response()->json($message, 400);
