@@ -140,9 +140,22 @@ class UserController extends Controller
         // $passwdCheck = DB::table('users')->where('id', $id)->pluck('password')->first();
         if($username !== '' || $email !== ''){
             if($username === $userFind){
-                dd($userFind);
+                //update random passwd and send to email's user
+                $newpasswd = Str::random(10);
+                $emailFind->password = Hash::make($newpasswd);
+                $update = $emailFind->save();
+
+                $res = ([
+                    'message'=> "New password request sent. Check email for new password",
+                    'data' => $emailFind,
+                    'newpasswd' => $newpasswd
+                ]);
+                return response()->json($res, 200);
             }else{
-                dd('$userFind');
+                $res = ([
+                    'message'=> "Username or email is incorrect",
+                ]);
+                return response()->json($res, 400);
             }
 
             // if($passwdCheck === $username && $email !== ''){
@@ -181,11 +194,11 @@ class UserController extends Controller
         $newpasswd = $request->newpassword;
 
         $data = User::find($id);
-        $passwdCheck = DB::table('users')->where('id', $id)->pluck('password')->first();
-
+        $hashpasswd = DB::table('users')->where('id', $id)->pluck('password')->first();
+        $passwdCheck = Hash::check($oldpasswd, $hashpasswd);
         if($oldpasswd !== '' || $newpasswd !== ''){
             if($passwdCheck === $oldpasswd && $newpasswd !== ''){
-                $data->password = $newpasswd;
+                $data->password = Hash::make($newpasswd);
                 $update = $data->save();
 
                 if($update){
@@ -200,7 +213,7 @@ class UserController extends Controller
                     $message = "Fail change password";
                     return response()->json($message, 400);
                 }
-            }else if($oldpasswd !== $passwdCheck){
+            }else if($passwdCheck ===  false){
                 $message = "Old password is Invalid";
                 return response()->json($message, 400);
             }else if($newpasswd === ''){
