@@ -26,6 +26,7 @@ $router->get('/', function () use ($router) {
 //user
 $router->post('/user/signup', 'UserController@create');
 $router->get('/user/activation', 'UserController@activate');
+$router->post('/user/login', 'UserController@login');
 $router->put('/user/{id}', 'UserController@update');
 $router->delete('/user/{id}', 'UserController@delete');
 //node

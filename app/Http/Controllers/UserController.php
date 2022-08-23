@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -23,7 +24,7 @@ class UserController extends Controller
     {
         $data = new User();
         $data->username = $request->username;
-        $data->password = $request->password;
+        $data->password = Hash::make($request->password);
         $data->email = $request->email;
         $data->token = Str::random(32);
         $data->status = 0;
@@ -62,7 +63,7 @@ class UserController extends Controller
                 $update = DB::table('users')->select('*')->where('token', $token)->update(['status' => 1]);
                 
                 $message = 'Your account has been activated';
-                return response()->json($res, 200);
+                return response()->json($message, 200);
             }else{
                 $message = 'Your account has already activated';
                 return response()->json($message, 400);
@@ -78,15 +79,41 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        // $data = User::all();
-        $data->username = $request->username;
-        $data->password = $request->password;
-        
-        $response=
-            // 'data'=> $data
-            $data
-        ;
-        return response($response);
+        $username = $request->input('username');
+        $password = $request->input('password');
+
+        $user = User::where('username', $username)->first();
+        $hashpasswd = DB::table('users')->where('username', $username)->pluck('password')->first();
+        $statusCheck = DB::table('users')->where('username', $username)->pluck('status')->first();
+        $passwdCheck = Hash::check($password, $hashpasswd);
+        // dd($user);
+        if($user){
+            if($statusCheck && $passwdCheck){
+                $update = DB::table('users')->select('*')->where('username', $username)->update(['token' => base64_encode(Str::random(32))]);
+                $user1 = User::where('username', $username)->first();
+                $res = ([
+                    'message'=> 'Login Succesfullly',
+                    'data' => $user1
+                ]);
+                return response()->json($res, 200);
+            }else if($password !== $passwdCheck){
+                $res = ([
+                    'message'=> 'Wrong Password',
+                ]);
+                return response()->json($res, 400);
+            }else{
+                $res = ([
+                    'message'=> 'Please activate your account, check your email',
+                ]);
+                return response()->json($res, 400);
+            }
+        }else{
+            $res = ([
+                'message'=> 'User Not Found, Wrong Username',
+            ]);
+            return response()->json($res, 404);
+        }
+       
     }
 
     // public function showDetailData($id)
@@ -100,6 +127,53 @@ class UserController extends Controller
     //         return response()->json($message, 404);
     //         }
     // }
+
+    public function resetpasswd(Request $request)
+    {
+        $username = $request->username;
+        $email = $request->email;
+
+        $emailFind = User::where('email', $email)->first();
+        $userFind = User::where('email', $email)->pluck('username')->first();
+
+
+        // $passwdCheck = DB::table('users')->where('id', $id)->pluck('password')->first();
+        if($username !== '' || $email !== ''){
+            if($username === $userFind){
+                dd($userFind);
+            }else{
+                dd('$userFind');
+            }
+
+            // if($passwdCheck === $username && $email !== ''){
+            //     $data->password = $email;
+            //     $update = $data->save();
+
+            //     if($update){
+            //         $res = ([
+            //             'message' => "Success change password",
+            //             'data' => $data
+            //         ]);
+            //         return response()->json($res, 200);
+            //     }
+            //     //unused code
+            //     else{
+            //         $message = "Fail change password";
+            //         return response()->json($message, 400);
+            //     }
+            // }else if($username !== $passwdCheck){
+            //     $message = "Old password is Invalid";
+            //     return response()->json($message, 400);
+            // }else if($email === ''){
+            //     $message = "Missing Parameter newpassword";
+            //     return response()->json($message, 400);
+            // }
+        }else{
+            $message = "Empty body request";
+            return response()->json($message, 400);
+        }
+
+    }
 
     public function update(Request $request, $id)
     {
