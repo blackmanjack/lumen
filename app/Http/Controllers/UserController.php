@@ -39,8 +39,8 @@ class UserController extends Controller
         $data->password = Hash::make($request->password);
         $data->email = $request->email;
         $data->token = Str::random(32);
-        $data->status = 0;
-        $data->is_admin = 0;
+        // $data->status = 0;
+        // $data->is_admin = 0;
 
         if($data->email === '' || $data->password === '' || $data->username === ''){
             $message = 'Parameter mustn\'t empty';

@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('token');
-            $table->boolean('status');
-            $table->boolean('is_admin');
+            $table->boolean('status')->default('false');
+            $table->boolean('is_admin')->default('false');
             $table->timestamps();
         });
     }
