@@ -22,6 +22,18 @@ class UserController extends Controller
 
     public function create(Request $request)
     {
+        $this->validate($request, [
+            'username' => 'required|unique:users',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8'
+        ],
+        [   
+            'username.required' => 'Parameter username mustn\'t empty',
+            'email.unique'      => 'Sorry, This Email Address Is Already Used By Another User. Please Try With Different One, Thank You.',
+            'password.required' => 'Password Is Required For Your Information Safety, Thank You.',
+            'password.min'      => 'Password Length Should Be at Least 8 Character Or Digit Or Mix, Thank You.',
+        ]);
+
         $data = new User();
         $data->username = $request->username;
         $data->password = Hash::make($request->password);
