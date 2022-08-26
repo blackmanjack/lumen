@@ -13,6 +13,11 @@ class Node extends Model
 		'location',
 	];
 
+	public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 	public function hardware()
     {
         return $this->belongsTo(Hardware::class);

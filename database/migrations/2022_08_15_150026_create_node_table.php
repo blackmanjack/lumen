@@ -15,10 +15,12 @@ return new class extends Migration
     {
         Schema::create('nodes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_hardware')->nullable();
-            $table->foreign('id_hardware')->references('id')->on('hardwares');
             $table->string('name');
             $table->string('location');
+            $table->unsignedBigInteger('id_user')->nullable();
+            $table->foreign('id_user')->references('id')->on('users');
+            $table->unsignedBigInteger('id_hardware')->nullable();
+            $table->foreign('id_hardware')->references('id')->on('hardwares');
             $table->timestamps();
         });
     }

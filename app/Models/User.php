@@ -30,4 +30,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $hidden = [
         'password',
     ];
+
+    public function node()
+    {
+        return $this->hasMany(Node::class);
+    }
 }

@@ -21,6 +21,7 @@ class NodeController extends Controller
     {
         $data = new Node();
         $data->id_hardware = $request->id_hardware;
+        $data->id_user = $request->id_user;
         $data->name = $request->name;
         $data->location = $request->location;
         $save = $data->save();
@@ -88,7 +89,5 @@ class NodeController extends Controller
             $message = "Parameter is Invalid";
             return response()->json($message, 404);
         }
-        // return response($response);
     }
-    //
 }
