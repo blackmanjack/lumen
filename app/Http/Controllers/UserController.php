@@ -1,12 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Response;
+
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Mail\PasswdEmail;
+use App\Mail\VerifyEmail;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+
 
 class UserController extends Controller
 {
@@ -50,13 +55,22 @@ class UserController extends Controller
 
         // $dataEmail = User::where('email', $email)->first();
         $token = $data->token;
+
         if($save){
-        $res = ([
-            'message'=> 'Success sign up, check email for verification',
-            'link'=> 'http://localhost:8000/user/activation?token='.$token,
-            'data'=> $data
-        ]);
+            $res = ([
+                'message'=> 'Success sign up, check email for verification',
+                'data'=> $data
+            ]);
+            $mailData = [
+                'id_user' => $data->id,
+                'username' => $data->username,
+                'link'=> 'http://localhost:8000/user/activation?token='.$token,
+            ];
+            
+            Mail::to($data->email)->send(new VerifyEmail($mailData));
+
             return response()->json($res, 201);
+
         }else{
             $message = "Parameter is Invalid";
             return response()->json($message, 400);
@@ -67,12 +81,18 @@ class UserController extends Controller
     {
         $token = $request->token;
         // $token = Str::random(32);
-        $findObj = DB::table('users')->where('token', $token)->pluck('token')->first();
+        $findObj = DB::table('users')->where('token', $token)
+                                    ->pluck('token')
+                                    ->first();
         // dd($findObj);
         if($findObj) {
-            $statusCheck = DB::table('users')->where('token', $token)->pluck('status')->first();
+            $statusCheck = DB::table('users')->where('token', $token)
+                                            ->pluck('status')
+                                            ->first();
             if($statusCheck === false){
-                $update = DB::table('users')->select('*')->where('token', $token)->update(['status' => 1]);
+                $update = DB::table('users')->select('*')
+                                            ->where('token', $token)
+                                            ->update(['status' => 1]);
                 
                 $message = 'Your account has been activated';
                 return response()->json($message, 200);
@@ -95,13 +115,19 @@ class UserController extends Controller
         $password = $request->input('password');
 
         $user = User::where('username', $username)->first();
-        $hashpasswd = DB::table('users')->where('username', $username)->pluck('password')->first();
-        $statusCheck = DB::table('users')->where('username', $username)->pluck('status')->first();
+        $hashpasswd = DB::table('users')->where('username', $username)
+                                        ->pluck('password')
+                                        ->first();
+        $statusCheck = DB::table('users')->where('username', $username)
+                                        ->pluck('status')
+                                        ->first();
         $passwdCheck = Hash::check($password, $hashpasswd);
         // dd($user);
         if($user){
             if($statusCheck && $passwdCheck){
-                $update = DB::table('users')->select('*')->where('username', $username)->update(['token' => base64_encode(Str::random(32))]);
+                $update = DB::table('users')->select('*')
+                                            ->where('username', $username)
+                                            ->update(['token' => base64_encode(Str::random(32))]);
                 $user1 = User::where('username', $username)->first();
                 $res = ([
                     'message'=> 'Login Succesfullly',
@@ -162,6 +188,14 @@ class UserController extends Controller
                     'data' => $emailFind,
                     'newpasswd' => $newpasswd
                 ]);
+                
+                $mailData = [
+                    'username' => $userFind,
+                    'passwd' => 'This is your new password '.$newpasswd
+                ];
+                 
+                Mail::to($emailFind)->send(new PasswdEmail($mailData));
+                   
                 return response()->json($res, 200);
             }else{
                 $res = ([
