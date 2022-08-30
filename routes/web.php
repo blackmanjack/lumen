@@ -28,6 +28,7 @@ $router->post('/user/signup', 'UserController@create');
 $router->get('/user/activation', 'UserController@activate');
 $router->post('/user/login', 'UserController@login');
 $router->post('/user/forget-password', 'UserController@resetpasswd');
+$router->get('/user/{id}', 'UserController@showAllDataUser');
 $router->put('/user/{id}', 'UserController@update');
 $router->delete('/user/{id}', 'UserController@delete');
 //node
