@@ -17,10 +17,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('location');
-            $table->unsignedBigInteger('id_user')->nullable();
-            $table->foreign('id_user')->references('id')->on('users');
-            $table->unsignedBigInteger('id_hardware')->nullable();
-            $table->foreign('id_hardware')->references('id')->on('hardwares');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedBigInteger('hardware_id')->nullable();
+            $table->foreign('hardware_id')->references('id')->on('hardwares');
             $table->timestamps();
         });
     }
