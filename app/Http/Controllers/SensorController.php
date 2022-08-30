@@ -20,8 +20,8 @@ class SensorController extends Controller
     public function create(Request $request)
     {
         $data = new Sensor();
-        $data->id_node = $request->id_node;
-        $data->id_hardware = $request->id_hardware;
+        $data->node_id = $request->node_id;
+        $data->hardware_id = $request->hardware_id;
         $data->name = $request->name;
         $data->unit = $request->unit;
         $save = $data->save();
@@ -38,16 +38,18 @@ class SensorController extends Controller
     public function showAll()
     {
         $data = Sensor::all();
-        $response=
-            // 'data'=> $data
-            $data
-        ;
-        return response($response);
+        // $response=
+        //     // 'data'=> $data
+        //     $data
+        // ;
+        return response($data);
     }
 
     public function showDetailData($id)
     {
-        $data = Sensor::where('id', $id)->first();
+        //query node, hardware, channel 
+        $data = Sensor::where('id', $id)->with('Node', 'Channel')->get();
+        
         if($data){
             return response()->json($data, 200);
         }

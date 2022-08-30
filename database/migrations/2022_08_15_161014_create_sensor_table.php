@@ -19,10 +19,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('unit');
-            $table->unsignedBigInteger('id_node')->nullable();
-            $table->foreign('id_node')->references('id')->on('nodes');
-            $table->unsignedBigInteger('id_hardware')->nullable();
-            $table->foreign('id_hardware')->references('id')->on('hardwares');
+            $table->unsignedBigInteger('node_id')->nullable();
+            $table->foreign('node_id')->references('id')->on('nodes');
+            $table->unsignedBigInteger('hardware_id')->nullable();
+            $table->foreign('hardware_id')->references('id')->on('hardwares');
             $table->timestamps();
         });
     }
