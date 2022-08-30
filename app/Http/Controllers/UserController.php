@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Node;
+use App\Models\Hardware;
+use App\Models\Sensor;
 use App\Mail\PasswdEmail;
 use App\Mail\VerifyEmail;
 use Illuminate\Support\Str;
@@ -44,8 +47,6 @@ class UserController extends Controller
         $data->password = Hash::make($request->password);
         $data->email = $request->email;
         $data->token = Str::random(32);
-        // $data->status = 0;
-        // $data->is_admin = 0;
 
         if($data->email === '' || $data->password === '' || $data->username === ''){
             $message = 'Parameter mustn\'t empty';
@@ -151,20 +152,50 @@ class UserController extends Controller
             ]);
             return response()->json($res, 404);
         }
-       
+    
     }
 
-    // public function showDetailData($id)
-    // {
-    //     $data = User::where('id', $id)->first();
-    //     if($data){
-    //         return response()->json($data, 200);
-    //     }
-    //     else{
-    //         $message = "Not found";
-    //         return response()->json($message, 404);
-    //         }
-    // }
+    public function showAllDataUser($id)
+    {
+        $data = User::where('id', $id)->first();
+    
+        $uquery = DB::table('users')->get();
+                    // ->join('nodes', 'users.id', '=', 'nodes.id_user')
+                    // ->join('sensors', 'sensors.id_node', '=', 'nodes.id')
+                    
+                    // ->join('sensors', 'users.id', '=', 'nodes.id_user')
+                    // ->where('id', $id)
+                    // ->join('nodes', 'users.id', '=', 'nodes.id_user')
+                    // ->where('nodes.id_user', $id)
+                    // ->get();
+        $nquery = DB::table('nodes')
+                    // ->select('*')
+                    // ->where('id_user', $id)
+                    ->get();
+        $squery = DB::table('sensors')
+                    // ->select('*')
+                    // ->leftJoin('nodes', 'sensors.id_node', '=', 'nodes.id')
+                    // ->where('nodes.id_user', $id)
+                    ->get();
+        // dd($uquery);
+
+        $isAdmin = User::where('id', $id)->pluck('is_admin')->first();
+        if($isAdmin){
+            // $allData = User::all();
+            //query all table from user table
+            $testqu = User::with('Node.Hardware', 'Node.Sensor.Channel')->get();
+            // $resUser = ([
+            //     'user' => $uquery,
+            //     'node' => $nquery,
+            //     'sensor' => $squery,
+            // ]); 
+            return response()->json($testqu, 200);
+        }
+        else{
+            $message = "Not found";
+            return response()->json($message, 404);
+        }
+    }
 
     public function resetpasswd(Request $request)
     {
@@ -193,9 +224,9 @@ class UserController extends Controller
                     'username' => $userFind,
                     'passwd' => 'This is your new password '.$newpasswd
                 ];
-                 
+
                 Mail::to($emailFind)->send(new PasswdEmail($mailData));
-                   
+            
                 return response()->json($res, 200);
             }else{
                 $res = ([
