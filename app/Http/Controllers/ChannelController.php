@@ -21,7 +21,7 @@ class ChannelController extends Controller
     {
         $data = new Channel();
         $data->value = $request->value;
-        $data->id_sensor = $request->id_sensor;
+        $data->sensor_id = $request->sensor_id;
         $save = $data->save();
 
         if($save){
@@ -33,23 +33,27 @@ class ChannelController extends Controller
         }
     }
 
-    public function showAll()
-    {
-        $response = Channel::all();
-        return response($response);
-    }
+    // public function showAll()
+    // {
+    //     $response = Channel::all();
+    //     return response($response);
+    // }
 
-    public function showDetailData($id)
-    {
-        $data = Channel::where('id', $id)->first();
-        if($data){
-            return response()->json($data, 200);
-        }
-        else{
-            $message = "Not found";
-            return response()->json($message, 404);
-            }
-    }
+    //not used
+    // public function showDetailData($id)
+    // {
+        //query sensor
+    //     $data = Channel::where('id', $id)->with('Sensor')->get();
+    //     
+    //     
+    //     if($data){
+    //         return response()->json($data, 200);
+    //     }
+    //     else{
+    //         $message = "Not found";
+    //         return response()->json($message, 404);
+    //         }
+    // }
 
     // public function update(Request $request, $id)
     // {

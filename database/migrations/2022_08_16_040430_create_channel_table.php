@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('channels', function (Blueprint $table) {
             $table->id();
             $table->float('value');
-            $table->unsignedBigInteger('id_sensor')->nullable();
-            $table->foreign('id_sensor')->references('id')->on('sensors');
+            $table->unsignedBigInteger('sensor_id')->nullable();
+            $table->foreign('sensor_id')->references('id')->on('sensors');
             $table->timestamps();
         });
     }
