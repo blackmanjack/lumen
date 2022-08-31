@@ -267,6 +267,14 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
+        //only accept headers application/x-www-form-urlencoded
+        $contentType = $request->headers->get('Content-Type');
+        $split = explode(';', $contentType)[0];
+        if($split !== "application/x-www-form-urlencoded"){
+            $message = "Supported format: application/x-www-form-urlencoded";
+            return response()->json($message, 415);
+        }
+        
         $oldpasswd = $request->oldpassword;
         $newpasswd = $request->newpassword;
 
@@ -306,7 +314,14 @@ class UserController extends Controller
 
     public function delete($id)
     {
-        $data = User::find($id);
+        $userid = Auth::id();
+        if($id !== $userid){
+            $message = "Can\'t delete another user\'s account";
+            return response()->json($message, 422);
+        }
+
+        $data = User::find($userid);
+        
         $delete = $data->delete();
 
         if($delete){

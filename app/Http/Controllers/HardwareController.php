@@ -19,6 +19,7 @@ class HardwareController extends Controller
 
     public function create(Request $request)
     {
+        // add Type must Single-Board Computer, Microcontroller Unit, or Sensor
         $data = new Hardware();
         $data->name = $request->name;
         $data->type = $request->type;
@@ -37,6 +38,7 @@ class HardwareController extends Controller
     public function showAll()
     {
         $data = Hardware::all();
+        //get all user's hardware
         $response=
             // 'data'=> $data
             $data
@@ -58,8 +60,16 @@ class HardwareController extends Controller
 
     public function update(Request $request, $id)
     {
+        //only accept headers application/x-www-form-urlencoded
+        $contentType = $request->headers->get('Content-Type');
+        $split = explode(';', $contentType)[0];
+        if($split !== "application/x-www-form-urlencoded"){
+            $message = "Supported format: application/x-www-form-urlencoded";
+            return response()->json($message, 415);
+        }
+
         $data = Hardware::find($id);
-        // dd($request->all());
+        // add Type must Single-Board Computer, Microcontroller Unit, or Sensor
         // return response($request);
         $update = $data->update([
             'name'=> $request->name,
@@ -67,7 +77,7 @@ class HardwareController extends Controller
             'description'=> $request->description,
         ]);
 
-         if($update){
+        if($update){
             $message = "Success edit Hardware";
             return response()->json($message, 200);
         }else{
@@ -89,7 +99,7 @@ class HardwareController extends Controller
             $message = "Parameter is Invalid";
             return response()->json($message, 404);
         }
-        // return response($response);
+        // add Can\'t delete, hardware is still used
     }
     //
 }

@@ -81,6 +81,14 @@ class NodeController extends Controller
 
     public function update(Request $request, $id)
     {
+        //only accept headers application/x-www-form-urlencoded
+        $contentType = $request->headers->get('Content-Type');
+        $split = explode(';', $contentType)[0];
+        if($split !== "application/x-www-form-urlencoded"){
+            $message = "Supported format: application/x-www-form-urlencoded";
+            return response()->json($message, 415);
+        }
+        
         $userid = Auth::id();
 
         $this->validate($request, [
@@ -97,6 +105,8 @@ class NodeController extends Controller
 
         $message = "Success edit node";
         return response()->json($message, 200);
+        //add You can\'t edit another user\'s node
+
 
         // if($update){
         //     $message = "Success edit node";
@@ -122,5 +132,6 @@ class NodeController extends Controller
             $message = "Parameter is Invalid";
             return response()->json($message, 404);
         }
+        //add condition You can\'t delete another user\'s data and Id node not found
     }
 }

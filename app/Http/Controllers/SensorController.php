@@ -49,7 +49,7 @@ class SensorController extends Controller
     {
         //query node, hardware, channel 
         $data = Sensor::where('id', $id)->with('Node', 'Channel')->get();
-        
+        //add You can\'t see another user\'s sensor
         if($data){
             return response()->json($data, 200);
         }
@@ -61,6 +61,13 @@ class SensorController extends Controller
 
     public function update(Request $request, $id)
     {
+        //only accept headers application/x-www-form-urlencoded
+        $contentType = $request->headers->get('Content-Type');
+        $split = explode(';', $contentType)[0];
+        if($split !== "application/x-www-form-urlencoded"){
+            $message = "Supported format: application/x-www-form-urlencoded";
+            return response()->json($message, 415);
+        }
         $data = Sensor::find($id);
         // dd($request->all());
         // return response($request);
