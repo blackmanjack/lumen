@@ -19,6 +19,11 @@ class ChannelController extends Controller
 
     public function create(Request $request)
     {
+        $this->validate($request, [
+            'value' => 'required',
+            'sensor_id' => 'required',
+        ]);
+        
         $data = new Channel();
         $data->value = $request->value;
         $data->sensor_id = $request->sensor_id;
