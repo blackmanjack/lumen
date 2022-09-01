@@ -14,11 +14,11 @@
 */
 
 
-use Illuminate\Support\Str;
+// use Illuminate\Support\Str;
 
-$router->get('/key', function() {
-    return Str::random(32);
-});
+// $router->get('/key', function() {
+//     return Str::random(32);
+// });
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
@@ -32,8 +32,7 @@ $router->post('/user/forget-password', 'UserController@resetpasswd');
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
     //admin
-    $router->get('/user/{id}', 'UserController@showAllDataUser');
-
+    $router->get('/user', 'AdminController@showAllDataUser');
     $router->put('/user/{id}', 'UserController@update');
     $router->delete('/user/{id}', 'UserController@delete');
     //node
@@ -57,4 +56,3 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     //channel
     $router->post('/channel', 'ChannelController@create');
 });
-

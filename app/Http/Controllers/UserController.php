@@ -14,6 +14,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 
 
 class UserController extends Controller
@@ -155,48 +156,6 @@ class UserController extends Controller
     
     }
 
-    public function showAllDataUser($id)
-    {
-        $data = User::where('id', $id)->first();
-    
-        $uquery = DB::table('users')->get();
-                    // ->join('nodes', 'users.id', '=', 'nodes.id_user')
-                    // ->join('sensors', 'sensors.id_node', '=', 'nodes.id')
-                    
-                    // ->join('sensors', 'users.id', '=', 'nodes.id_user')
-                    // ->where('id', $id)
-                    // ->join('nodes', 'users.id', '=', 'nodes.id_user')
-                    // ->where('nodes.id_user', $id)
-                    // ->get();
-        $nquery = DB::table('nodes')
-                    // ->select('*')
-                    // ->where('id_user', $id)
-                    ->get();
-        $squery = DB::table('sensors')
-                    // ->select('*')
-                    // ->leftJoin('nodes', 'sensors.id_node', '=', 'nodes.id')
-                    // ->where('nodes.id_user', $id)
-                    ->get();
-        // dd($uquery);
-
-        $isAdmin = User::where('id', $id)->pluck('is_admin')->first();
-        if($isAdmin){
-            // $allData = User::all();
-            //query all table from user table
-            $testqu = User::with('Node.Hardware', 'Node.Sensor.Channel')->get();
-            // $resUser = ([
-            //     'user' => $uquery,
-            //     'node' => $nquery,
-            //     'sensor' => $squery,
-            // ]); 
-            return response()->json($testqu, 200);
-        }
-        else{
-            $message = "Not found";
-            return response()->json($message, 404);
-        }
-    }
-
     public function resetpasswd(Request $request)
     {
         $username = $request->username;
@@ -235,29 +194,6 @@ class UserController extends Controller
                 return response()->json($res, 400);
             }
 
-            // if($passwdCheck === $username && $email !== ''){
-            //     $data->password = $email;
-            //     $update = $data->save();
-
-            //     if($update){
-            //         $res = ([
-            //             'message' => "Success change password",
-            //             'data' => $data
-            //         ]);
-            //         return response()->json($res, 200);
-            //     }
-            //     //unused code
-            //     else{
-            //         $message = "Fail change password";
-            //         return response()->json($message, 400);
-            //     }
-            // }else if($username !== $passwdCheck){
-            //     $message = "Old password is Invalid";
-            //     return response()->json($message, 400);
-            // }else if($email === ''){
-            //     $message = "Missing Parameter newpassword";
-            //     return response()->json($message, 400);
-            // }
         }else{
             $message = "Empty body request";
             return response()->json($message, 400);
