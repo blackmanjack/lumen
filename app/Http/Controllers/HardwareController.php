@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Response;
+use App\Models\Sensor;
+use App\Models\Node;
 use App\Models\Hardware;
 use Illuminate\Http\Request;
 
@@ -45,11 +47,7 @@ class HardwareController extends Controller
     {
         $data = Hardware::all();
         //get all user's hardware
-        $response=
-            // 'data'=> $data
-            $data
-        ;
-        return response($response);
+        return response($data);
     }
 
     public function showDetailData($id)
@@ -82,7 +80,6 @@ class HardwareController extends Controller
         ]);
 
         $data = Hardware::find($id);
-        // add Type must Single-Board Computer, Microcontroller Unit, or Sensor
         
         if(strtolower($request->type) === 'single-board computer' || strtolower($request->type) === 'microcontroller unit' || strtolower($request->type) === 'sensor'){
             $update = $data->update([
@@ -100,17 +97,26 @@ class HardwareController extends Controller
 
     public function delete($id)
     {
-        $data = Hardware::find($id);
-        $delete = $data->delete();
+        $data = Hardware::where('id', $id)
+        ->with('Node', 'Sensor')
+        ->first();
 
-        if($delete){
-            $message = "Success delete Hardware, id: $id";
-            return response()->json($message, 200);
+        //if data found in db
+        if($data){
+            //if hardware not found in node's table and sensor's table, delete hardware
+            if($data->toArray()['node'] === [] && $data->toArray()['sensor'] === []){
+                $data = Hardware::find($id);
+                $data->delete();
+                $message = 'Delete hardware, id:'.$id;
+                return response()->json($message, 200);
+            }else{
+                $message = 'Can\'t delete, hardware is still used';
+                return response()->json($message, 400);
+            }
         }else{
-            $message = "Parameter is Invalid";
+            $message = 'Id hardware not found';
             return response()->json($message, 404);
         }
-        // add Can\'t delete, hardware is still used
+        
     }
-    //
 }
