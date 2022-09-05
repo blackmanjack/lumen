@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Response;
+use App\Models\Node;
 use App\Models\Sensor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SensorController extends Controller
 {
@@ -45,25 +47,27 @@ class SensorController extends Controller
     public function showAll()
     {
         $data = Sensor::all();
-        // $response=
-        //     // 'data'=> $data
-        //     $data
-        // ;
         return response($data);
     }
 
     public function showDetailData($id)
     {
         //query node, hardware, channel 
-        $data = Sensor::where('id', $id)->with('Node', 'Channel')->get();
+        
+        $data = Sensor::where('id', $id)->with('Node', 'Channel')->first();
         //add You can\'t see another user\'s sensor
+        $userID = $data->toArray()['node']['user_id'];
         if($data){
-            return response()->json($data, 200);
-        }
-        else{
-            $message = "Not found";
-            return response()->json($message, 404);
+            if($userID === Auth::id()){
+                return response()->json($data, 200);
+            }else{
+                $message = 'You can\'t see another user\'s sensor';
+                return response()->json($message, 403);
             }
+        }else{
+            $message = 'Id sensor not found';
+            return response()->json($message, 404);
+        }
     }
 
     public function update(Request $request, $id)
@@ -82,36 +86,48 @@ class SensorController extends Controller
             'unit' => 'required'
         ]);
 
-        $data = Sensor::find($id);
+        $findSensor = Sensor::find($id);
 
-        $update = $data->update([
-            'name'=> $request->name,
-            'unit'=> $request->unit,
-        ]);
+        $data = Sensor::where('id', $id)->with('Node', 'Channel')->first();
 
-         if($update){
-            $message = "Success edit Sensor";
-            return response()->json($message, 200);
+        $userID = $data->toArray()['node']['user_id'];
+        if($findSensor){
+            if($userID === Auth::id()){
+                $update = $data->update([
+                    'name'=> $request->name,
+                    'unit'=> $request->unit,
+                ]);
+
+                $message = "Success edit Sensor";
+                return response()->json($message, 200);
+            }else{
+                $message = 'You can\'t edit another user\'s sensor';
+                return response()->json($message, 403);
+            }
         }else{
-            $message = "Empty Request Body";
-            return response()->json($message, 400);
+            $message = 'Id sensor not found';
+            return response()->json($message, 404);
         }
-        return response($response);
     }
 
     public function delete($id)
     {
-        $data = Sensor::find($id);
-        $delete = $data->delete();
+        $findSensor = Sensor::find($id);
+        
+        $userID = $data->toArray()['node']['user_id'];
+        if($findSensor){
+            if($userID === Auth::id()){
+                $delete = $data->delete();
 
-        if($delete){
-            $message = "Success delete Sensor, id: $id";
-            return response()->json($message, 200);
+                $message = "Succes delete sensor data, id: $id";
+                return response()->json($message, 200);
+            }else{
+                $message = 'You can\'t delete another user\'s sensor';
+                return response()->json($message, 403);
+            }
         }else{
-            $message = "Parameter is Invalid";
+            $message = 'Id sensor not found';
             return response()->json($message, 404);
         }
-        // return response($response);
     }
-    //
 }
