@@ -19,19 +19,25 @@ class HardwareController extends Controller
 
     public function create(Request $request)
     {
-        // add Type must Single-Board Computer, Microcontroller Unit, or Sensor
+        //check input field is empty
+        $this->validate($request, [
+            'name' => 'required',
+            'type' => 'required',
+            'description' => 'required'
+        ]);
+        
         $data = new Hardware();
         $data->name = $request->name;
-        $data->type = $request->type;
+        $data->type = strtolower($request->type);
         $data->description = $request->description;
-        $save = $data->save();
-
-        if($save){
+        
+        if($data->type === 'single-board computer' || $data->type === 'microcontroller unit' || $data->type === 'sensor'){
+            $data->save();
             $message = "Success add new hardware";
             return response()->json($message, 201);
         }else{
-            $message = "Parameter is Invalid";
-            return response()->json($message, 404);
+            $message = "Type must Single-Board Computer, Microcontroller Unit, or Sensor";
+            return response()->json($message, 400);
         }
     }
 
