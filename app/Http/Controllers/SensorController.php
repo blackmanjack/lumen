@@ -19,6 +19,13 @@ class SensorController extends Controller
 
     public function create(Request $request)
     {
+        $this->validate($request, [
+            'node_id' => 'required',
+            'hardware_id' => 'required',
+            'name' => 'required',
+            'unit' => 'required'
+        ]);
+
         $data = new Sensor();
         $data->node_id = $request->node_id;
         $data->hardware_id = $request->hardware_id;
@@ -68,9 +75,15 @@ class SensorController extends Controller
             $message = "Supported format: application/x-www-form-urlencoded";
             return response()->json($message, 415);
         }
+
+        //validation input
+        $this->validate($request, [
+            'name' => 'required',
+            'unit' => 'required'
+        ]);
+
         $data = Sensor::find($id);
-        // dd($request->all());
-        // return response($request);
+
         $update = $data->update([
             'name'=> $request->name,
             'unit'=> $request->unit,
