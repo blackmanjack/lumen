@@ -74,23 +74,28 @@ class HardwareController extends Controller
             return response()->json($message, 415);
         }
 
-        $data = Hardware::find($id);
-        // add Type must Single-Board Computer, Microcontroller Unit, or Sensor
-        // return response($request);
-        $update = $data->update([
-            'name'=> $request->name,
-            'type'=> $request->type,
-            'description'=> $request->description,
+        //check input field is empty
+        $this->validate($request, [
+            'name' => 'required',
+            'type' => 'required',
+            'description' => 'required'
         ]);
 
-        if($update){
+        $data = Hardware::find($id);
+        // add Type must Single-Board Computer, Microcontroller Unit, or Sensor
+        
+        if(strtolower($request->type) === 'single-board computer' || strtolower($request->type) === 'microcontroller unit' || strtolower($request->type) === 'sensor'){
+            $update = $data->update([
+                'name'=> $request->name,
+                'type'=> $request->type,
+                'description'=> $request->description,
+            ]);
             $message = "Success edit Hardware";
             return response()->json($message, 200);
         }else{
-            $message = "Empty Request Body";
+            $message = "Type must Single-Board Computer, Microcontroller Unit, or Sensor";
             return response()->json($message, 400);
         }
-        return response($response);
     }
 
     public function delete($id)
