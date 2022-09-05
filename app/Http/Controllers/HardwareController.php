@@ -59,7 +59,7 @@ class HardwareController extends Controller
         else{
             $message = "Not found";
             return response()->json($message, 404);
-            }
+        }
     }
 
     public function update(Request $request, $id)

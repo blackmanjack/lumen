@@ -128,13 +128,5 @@ class NodeController extends Controller
             $message = 'Id node not found';
             return response()->json($message, 404);
         }
-
-        if($delete){
-            $message = "Success delete node, id: $id";
-            return response()->json($message, 200);
-        }else{
-            $message = "Parameter is Invalid";
-            return response()->json($message, 404);
-        }
     }
 }
