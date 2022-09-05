@@ -38,26 +38,13 @@ class NodeController extends Controller
         
         $message = "Success add new node";
         return response()->json($message, 201);
-
-        // if($node){
-        //     $message = "Success add new node";
-        //     return response()->json($message, 201);
-        // }else{
-        //     $message = "Parameter is Invalid";
-        //     return response()->json($message, 404);
-        // }
     }
 
     public function showAll()
     {
         $userid = Auth::id();
         $data = Node::where('user_id', $userid)->get();
-        // dd($data);
-        $response=
-            // 'data'=> $data
-            $data
-        ;
-        return response($response);
+        return response($data);
     }
 
     public function showDetailData($id)
@@ -70,11 +57,16 @@ class NodeController extends Controller
         ->with('User','Hardware', 'Sensor.Channel')
         ->first();
 
-        if($data){
-            return response()->json($data, 200);
-        }
-        else{
-            $message = "Not found";
+        $findNode = Node::find($id);
+        if($findNode){
+            if($data){
+                return response()->json($data, 200);
+            }else{
+                $message = "You can\'t see another user\'s node";
+                return response()->json($message, 403);
+            }
+        }else{
+            $message = 'Id node not found';
             return response()->json($message, 404);
         }
     }
@@ -96,34 +88,46 @@ class NodeController extends Controller
             'location' => 'required'
         ]);
 
-        $data = Node::where('user_id', $userid)->find($id);
-
-        $update = $data->update([
-            'name'=> $request->name,
-            'location'=> $request->location,
-        ]);
-
-        $message = "Success edit node";
-        return response()->json($message, 200);
-        //add You can\'t edit another user\'s node
-
-
-        // if($update){
-        //     $message = "Success edit node";
-        //     return response()->json($message, 200);
-        // }else{
-        //     $message = "Empty Request Body";
-        //     return response()->json($message, 400);
-        // }
-        // return response($response);
+        $findNode = Node::find($id);
+        $data = Node::where('user_id', $userid)->find($id); 
+        if($findNode){
+            if($data){
+                $update = $data->update([
+                    'name'=> $request->name,
+                    'location'=> $request->location,
+                ]);
+        
+                $message = "Success edit node";
+                return response()->json($message, 200);
+            }else{
+                $message = "You can\'t edit another user\'s node";
+                return response()->json($message, 403);
+            }
+        }else{
+            $message = 'Id node not found';
+            return response()->json($message, 403);
+        }
     }
 
     public function delete($id)
     {
         $userid = Auth::id();
         $data = Node::where('user_id', $userid)->find($id);
-        
-        $delete = $data->delete();
+
+        $findNode = Node::find($id);
+        if($findNode){
+            if($data){
+                $data->delete();
+                $message = "Success delete node, id: $id";
+                return response()->json($message, 200);
+            }else{
+                $message = 'You can\'t edit another user\'s node';
+                return response()->json($message, 403);
+            }
+        }else{
+            $message = 'Id node not found';
+            return response()->json($message, 404);
+        }
 
         if($delete){
             $message = "Success delete node, id: $id";
@@ -132,6 +136,5 @@ class NodeController extends Controller
             $message = "Parameter is Invalid";
             return response()->json($message, 404);
         }
-        //add condition You can\'t delete another user\'s data and Id node not found
     }
 }
