@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Response;
 use App\Models\Node;
 use App\Models\Sensor;
+use App\Models\Hardware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,7 +24,6 @@ class SensorController extends Controller
     {
         $this->validate($request, [
             'node_id' => 'required',
-            'hardware_id' => 'required',
             'name' => 'required',
             'unit' => 'required'
         ]);
@@ -33,13 +33,35 @@ class SensorController extends Controller
         $data->hardware_id = $request->hardware_id;
         $data->name = $request->name;
         $data->unit = $request->unit;
-        $save = $data->save();
 
-        if($save){
-            $message = "Success add new sensor";
-            return response()->json($message, 201);
+        $user_id = Node::where('id', $request->node_id)->pluck('user_id')->first();
+        //checking id node
+        $findNode = Node::find($request->node_id);
+        if($findNode){
+            //check user's node
+            if($user_id !== Auth::id()){
+                $message = 'You can\'t use another user\'s node';
+                return response()->json($message, 403);
+            }
+            //checking hardware
+            else if($request->hardware_id == null || $request->hardware_id == ""){
+                $save = $data->save();
+                $message = "Success add new sensor";
+                return response()->json($message, 201);
+            }else{
+                //checking type hardware
+                $typeHardware = Hardware::where('id', $request->hardware_id)->pluck('type')->first();
+                if($typeHardware == 'sensor'){
+                    $save = $data->save();
+                    $message = "Success add new sensor";
+                    return response()->json($message, 201);
+                }else{
+                    $message = 'Hardware type not match, type should Sensor';
+                    return response()->json($message, 400);
+                }
+            }
         }else{
-            $message = "Parameter is Invalid";
+            $message = 'Id node not found';
             return response()->json($message, 404);
         }
     }
