@@ -3,5 +3,5 @@
 Homestead.json
 Homestead.yaml
 .env
-.env.example
+.envexample
 .phpunit.result.cache
