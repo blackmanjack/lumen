@@ -24,7 +24,6 @@ class NodeController extends Controller
     public function create(Request $request)
     {   
         $this->validate($request, [
-            'hardware_id' => 'required',
             'name' => 'required',
             'location' => 'required'
         ]);
@@ -34,10 +33,25 @@ class NodeController extends Controller
         $node->user_id = Auth::id();
         $node->name = $request->name;
         $node->location = $request->location;
-        $node = $node->save();
         
-        $message = "Success add new node";
-        return response()->json($message, 201);
+        $findHardware = Hardware::where('id', $request->hardware_id)->pluck('type')->first();
+        if($request->hardware_id == null || $request->hardware_id == ""){
+            $node = $node->save();
+            $message = "Success add new node";
+            return response()->json($message, 201);
+        }else if($findHardware){
+            if($findHardware == 'microcontroller unit' || $findHardware == 'single-board computer'){
+                $node = $node->save();
+                $message = "Success add new node";
+                return response()->json($message, 201);
+            }else{
+                $message = 'Hardware type not match, type should Microcontroller Unit or Single-Board Computer';
+                return response()->json($message, 400);
+            };
+        }else{
+            $message = 'Id hardware not found';
+            return response()->json($message, 404);
+        }
     }
 
     public function showAll()
