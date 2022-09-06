@@ -33,6 +33,7 @@ $router->post('/user/forget-password', 'UserController@resetpasswd');
 $router->group(['middleware' => 'auth'], function () use ($router) {
     //admin
     $router->get('/user', 'AdminController@showAllDataUser');
+    //user
     $router->put('/user/{id}', 'UserController@update');
     $router->delete('/user/{id}', 'UserController@delete');
     //node
