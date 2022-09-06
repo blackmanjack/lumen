@@ -62,7 +62,7 @@ class NodeController extends Controller
             if($data){
                 return response()->json($data, 200);
             }else{
-                $message = "You can\'t see another user\'s node";
+                $message = 'You can\'t see another user\'s node';
                 return response()->json($message, 403);
             }
         }else{
@@ -100,7 +100,7 @@ class NodeController extends Controller
                 $message = "Success edit node";
                 return response()->json($message, 200);
             }else{
-                $message = "You can\'t edit another user\'s node";
+                $message = 'You can\'t edit another user\'s node';
                 return response()->json($message, 403);
             }
         }else{
@@ -121,7 +121,7 @@ class NodeController extends Controller
                 $message = "Success delete node, id: $id";
                 return response()->json($message, 200);
             }else{
-                $message = 'You can\'t edit another user\'s node';
+                $message = 'You can\'t delete another user\'s node';
                 return response()->json($message, 403);
             }
         }else{
