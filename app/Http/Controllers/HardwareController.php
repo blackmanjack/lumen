@@ -81,10 +81,10 @@ class HardwareController extends Controller
 
         $data = Hardware::find($id);
         
-        if(strtolower($request->type) === 'single-board computer' || strtolower($request->type) === 'microcontroller unit' || strtolower($request->type) === 'sensor'){
+        if($request->type === 'single-board computer' || $request->type === 'microcontroller unit' || $request->type === 'sensor'){
             $update = $data->update([
                 'name'=> $request->name,
-                'type'=> $request->type,
+                'type'=> strtolower($request->type),
                 'description'=> $request->description,
             ]);
             $message = "Success edit Hardware";
