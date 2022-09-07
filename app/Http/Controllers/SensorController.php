@@ -75,11 +75,10 @@ class SensorController extends Controller
     public function showDetailData($id)
     {
         //query node, hardware, channel 
-        
         $data = Sensor::where('id', $id)->with('Node', 'Channel')->first();
         //add You can\'t see another user\'s sensor
-        $userID = $data->toArray()['node']['user_id'];
         if($data){
+            $userID = $data->toArray()['node']['user_id'];
             if($userID === Auth::id()){
                 return response()->json($data, 200);
             }else{
