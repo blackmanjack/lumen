@@ -86,7 +86,7 @@ class UserController extends Controller
         $findObj = DB::table('users')->where('token', $token)
                                     ->pluck('token')
                                     ->first();
-        // dd($findObj);
+
         if($findObj) {
             $statusCheck = DB::table('users')->where('token', $token)
                                             ->pluck('status')
@@ -113,6 +113,15 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
+        $this->validate($request, [
+            'username' => 'required',
+            'password' => 'required'
+        ],
+        [   
+            'username.required' => 'Parameter username mustn\'t empty',
+            'password.required' => 'Password Is Required',
+        ]);
+
         $username = $request->input('username');
         $password = $request->input('password');
 
@@ -124,19 +133,21 @@ class UserController extends Controller
                                         ->pluck('status')
                                         ->first();
         $passwdCheck = Hash::check($password, $hashpasswd);
-        // dd($user);
+
         if($user){
             if($statusCheck && $passwdCheck){
                 $update = DB::table('users')->select('*')
                                             ->where('username', $username)
                                             ->update(['token' => base64_encode(Str::random(32))]);
                 $user1 = User::where('username', $username)->first();
+                $api_token = User::where('username', $username)->pluck('token')->first();
                 $res = ([
                     'message'=> 'Login Succesfullly',
-                    'data' => $user1
+                    'data' => $user1,
+                    'api_token' => $api_token,
                 ]);
                 return response()->json($res, 200);
-            }else if($password !== $passwdCheck){
+            }else if(!$passwdCheck){
                 $res = ([
                     'message'=> 'Wrong Password',
                 ]);
@@ -158,6 +169,10 @@ class UserController extends Controller
 
     public function resetpasswd(Request $request)
     {
+        $this->validate($request, [
+            'username' => 'required',
+            'email' => 'required'
+        ]);
         $username = $request->username;
         $email = $request->email;
 
@@ -176,7 +191,6 @@ class UserController extends Controller
                 $res = ([
                     'message'=> "New password request sent. Check email for new password",
                     'data' => $emailFind,
-                    'newpasswd' => $newpasswd
                 ]);
                 
                 $mailData = [
@@ -210,42 +224,36 @@ class UserController extends Controller
             $message = "Supported format: application/x-www-form-urlencoded";
             return response()->json($message, 415);
         }
-        
+        $this->validate($request, [
+            'oldpassword' => 'required',
+            'newpassword' => 'required|min:8'
+        ]);
+
+        $userid = Auth::id();
+        if($id !== $userid){
+            $message = "Can't edit another user's account";
+            return response()->json($message, 403);
+        }
+
         $oldpasswd = $request->oldpassword;
         $newpasswd = $request->newpassword;
 
-        $data = User::find($id);
-        $hashpasswd = DB::table('users')->where('id', $id)->pluck('password')->first();
+        $data = User::find($userid);
+        $hashpasswd = DB::table('users')->where('id', $userid)->pluck('password')->first();
         $passwdCheck = Hash::check($oldpasswd, $hashpasswd);
-        if($oldpasswd !== '' || $newpasswd !== ''){
-            if($passwdCheck === $oldpasswd && $newpasswd !== ''){
+            if($passwdCheck){
                 $data->password = Hash::make($newpasswd);
                 $update = $data->save();
 
-                if($update){
-                    $res = ([
-                        'message' => "Success change password",
-                        'data' => $data
-                    ]);
-                    return response()->json($res, 200);
-                }
-                //unused code
-                else{
-                    $message = "Fail change password";
-                    return response()->json($message, 400);
-                }
-            }else if($passwdCheck ===  false){
+                $res = ([
+                    'message' => "Success change password",
+                    'data' => $data
+                ]);
+                return response()->json($res, 200);
+            }else{
                 $message = "Old password is Invalid";
                 return response()->json($message, 400);
-            }else if($newpasswd === ''){
-                $message = "Missing Parameter newpassword";
-                return response()->json($message, 400);
             }
-        }else{
-            $message = "Empty body request";
-            return response()->json($message, 400);
-        }
-
     }
 
     public function delete($id)
@@ -253,7 +261,7 @@ class UserController extends Controller
         $userid = Auth::id();
         if($id !== $userid){
             $message = "Can\'t delete another user\'s account";
-            return response()->json($message, 422);
+            return response()->json($message, 403);
         }
 
         $data = User::find($userid);
