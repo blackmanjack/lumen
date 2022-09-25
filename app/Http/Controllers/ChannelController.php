@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Response;
 use App\Models\Channel;
+use App\Models\Sensor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ChannelController extends Controller
 {
@@ -23,42 +25,53 @@ class ChannelController extends Controller
             'value' => 'required',
             'sensor_id' => 'required',
         ]);
-        
+
         $data = new Channel();
         $data->value = $request->value;
         $data->sensor_id = $request->sensor_id;
-        $save = $data->save();
+        
+        $findSensor = Sensor::where('id', $request->sensor_id)->first();
 
-        if($save){
+        if($findSensor){
+            $save = $data->save();
             $message = "Success add new Channel";
             return response()->json($message, 201);
         }else{
-            $message = "Parameter is Invalid";
-            return response()->json($message, 400);
+            $message = "Sensor Not Found";
+            return response()->json($message, 404);
         }
     }
 
-    // public function showAll()
-    // {
-    //     $response = Channel::all();
-    //     return response($response);
-    // }
+    public function showAll()
+    {
+        $data = Channel::select('channels.*')
+                ->leftJoin('sensors', 'channels.sensor_id', '=', 'sensors.id')
+                ->leftJoin('nodes', 'nodes.id', '=', 'sensors.node_id')
+                ->where('nodes.user_id', Auth::id())
+                ->with('Sensor')    
+                ->get();
 
-    //not used
-    // public function showDetailData($id)
-    // {
-        //query sensor
-    //     $data = Channel::where('id', $id)->with('Sensor')->get();
-    //     
-    //     
-    //     if($data){
-    //         return response()->json($data, 200);
-    //     }
-    //     else{
-    //         $message = "Not found";
-    //         return response()->json($message, 404);
-    //         }
-    // }
+        return response($data);
+    }
+
+    public function showDetailData($id)
+    {
+        $data = Channel::select('channels.*')
+                ->leftJoin('sensors', 'channels.sensor_id', '=', 'sensors.id')
+                ->leftJoin('nodes', 'nodes.id', '=', 'sensors.node_id')
+                ->where('nodes.user_id', Auth::id())
+                ->where('channels.id', $id)
+                ->with('Sensor')    
+                ->first();
+
+        if($data !== null){
+            return response()->json($data, 200);
+        }
+        else{
+            $message = "Channel Not found";
+            return response()->json($message, 404);
+            }
+    }
 
     // public function update(Request $request, $id)
     // {
