@@ -34,26 +34,28 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     //admin
     $router->get('/user', 'AdminController@showAllDataUser');
     //user
-    $router->put('/user/{id}', 'UserController@update');
-    $router->delete('/user/{id}', 'UserController@delete');
+    $router->put('/user/{id:[0-9]+}', 'UserController@update');
+    $router->delete('/user/{id:[0-9]+}', 'UserController@delete');
     //node
     $router->post('/node', 'NodeController@create');
     $router->get('/node', 'NodeController@showAll');
-    $router->get('/node/{id}', 'NodeController@showDetailData');
-    $router->put('/node/{id}', 'NodeController@update');
-    $router->delete('/node/{id}', 'NodeController@delete');
+    $router->get('/node/{id:[0-9]+}', 'NodeController@showDetailData');
+    $router->put('/node/{id:[0-9]+}', 'NodeController@update');
+    $router->delete('/node/{id:[0-9]+}', 'NodeController@delete');
     //hardware
     $router->post('/hardware', 'HardwareController@create');
     $router->get('/hardware', 'HardwareController@showAll');
-    $router->get('/hardware/{id}', 'HardwareController@showDetailData');
-    $router->put('/hardware/{id}', 'HardwareController@update');
-    $router->delete('/hardware/{id}', 'HardwareController@delete');
+    $router->get('/hardware/{id:[0-9]+}', 'HardwareController@showDetailData');
+    $router->put('/hardware/{id:[0-9]+}', 'HardwareController@update');
+    $router->delete('/hardware/{id:[0-9]+}', 'HardwareController@delete');
     //sensor
     $router->post('/sensor', 'SensorController@create');
     $router->get('/sensor', 'SensorController@showAll');
-    $router->get('/sensor/{id}', 'SensorController@showDetailData');
-    $router->put('/sensor/{id}', 'SensorController@update');
-    $router->delete('/sensor/{id}', 'SensorController@delete');
+    $router->get('/sensor/{id:[0-9]+}', 'SensorController@showDetailData');
+    $router->put('/sensor/{id:[0-9]+}', 'SensorController@update');
+    $router->delete('/sensor/{id:[0-9]+}', 'SensorController@delete');
     //channel
     $router->post('/channel', 'ChannelController@create');
+    $router->get('/channel', 'ChannelController@showAll');
+    $router->get('/channel/{id:[0-9]+}', 'ChannelController@showDetailData');
 });
