@@ -29,17 +29,19 @@ class NodeController extends Controller
         ]);
 
         $node = new Node();
-        $node->hardware_id = $request->hardware_id;
         $node->user_id = Auth::id();
         $node->name = $request->name;
         $node->location = $request->location;
         
-        $findHardware = Hardware::where('id', $request->hardware_id)->pluck('type')->first();
         if($request->hardware_id == null || $request->hardware_id == ""){
             $node = $node->save();
             $message = "Success add new node";
             return response()->json($message, 201);
-        }else if($findHardware){
+        }
+
+        $node->hardware_id = $request->hardware_id;
+        $findHardware = Hardware::where('id', $request->hardware_id)->pluck('type')->first();
+        if($findHardware){
             if($findHardware == 'microcontroller unit' || $findHardware == 'single-board computer'){
                 $node = $node->save();
                 $message = "Success add new node";
@@ -71,7 +73,7 @@ class NodeController extends Controller
         ->with('User','Hardware', 'Sensor.Channel')
         ->first();
 
-        $findNode = Node::find($id);
+        $findNode = Node::where('id', $id)->first();
         if($findNode){
             if($data){
                 return response()->json($data, 200);
@@ -99,11 +101,12 @@ class NodeController extends Controller
 
         $this->validate($request, [
             'name' => 'required',
-            'location' => 'required'
+            'location' => 'required',
         ]);
 
-        $findNode = Node::find($id);
-        $data = Node::where('user_id', $userid)->find($id); 
+        $findNode = Node::where('id', $id)->first();
+
+        $data = Node::where('user_id', $userid)->where('id', $id)->first(); 
         if($findNode){
             if($data){
                 $update = $data->update([
@@ -126,9 +129,9 @@ class NodeController extends Controller
     public function delete($id)
     {
         $userid = Auth::id();
-        $data = Node::where('user_id', $userid)->find($id);
+        $data = Node::where('user_id', $userid)->where('id', $id)->first();
 
-        $findNode = Node::find($id);
+        $findNode = Node::where('id', $id)->first();
         if($findNode){
             if($data){
                 $data->delete();
