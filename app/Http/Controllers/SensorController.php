@@ -30,13 +30,12 @@ class SensorController extends Controller
 
         $data = new Sensor();
         $data->node_id = $request->node_id;
-        $data->hardware_id = $request->hardware_id;
         $data->name = $request->name;
         $data->unit = $request->unit;
 
         $user_id = Node::where('id', $request->node_id)->pluck('user_id')->first();
         //checking id node
-        $findNode = Node::find($request->node_id);
+        $findNode = Node::where('id', $request->node_id)->first();
         if($findNode){
             //check user's node
             if($user_id !== Auth::id()){
@@ -44,20 +43,29 @@ class SensorController extends Controller
                 return response()->json($message, 403);
             }
             //checking hardware
-            else if($request->hardware_id == null || $request->hardware_id == ""){
+            if($request->hardware_id == null || $request->hardware_id == ""){
+
                 $save = $data->save();
                 $message = "Success add new sensor";
                 return response()->json($message, 201);
             }else{
-                //checking type hardware
-                $typeHardware = Hardware::where('id', $request->hardware_id)->pluck('type')->first();
-                if($typeHardware == 'sensor'){
-                    $save = $data->save();
-                    $message = "Success add new sensor";
-                    return response()->json($message, 201);
-                }else{
-                    $message = 'Hardware type not match, type should Sensor';
-                    return response()->json($message, 400);
+                $data->hardware_id = $request->hardware_id; 
+                //check hardware id
+                $hardwareId = Hardware::where('id', $request->hardware_id)->first();
+                if($hardwareId){
+                    //checking type hardware
+                    $typeHardware = Hardware::where('id', $request->hardware_id)->pluck('type')->first();
+                    if($typeHardware == 'sensor'){
+                        $save = $data->save();
+                        $message = "Success add new sensor";
+                        return response()->json($message, 201);
+                    }else{
+                        $message = 'Hardware type not match, type should Sensor';
+                        return response()->json($message, 400);
+                    }
+                }else {
+                    $message = 'Hardware Not Found';
+                    return response()->json($message, 404);
                 }
             }
         }else{
@@ -68,7 +76,10 @@ class SensorController extends Controller
 
     public function showAll()
     {
-        $data = Sensor::all();
+        $data = Sensor::select('sensors.*')->leftJoin('nodes', 'nodes.id', '=', 'sensors.node_id')
+                ->where('nodes.user_id', Auth::id())
+                ->with('Node')    
+                ->get();
         return response($data);
     }
 
@@ -134,13 +145,13 @@ class SensorController extends Controller
     public function delete($id)
     {
         $findSensor = Sensor::find($id);
-        
-        $userID = $data->toArray()['node']['user_id'];
+        $data = Sensor::where('id', $id)->with('Node')->first();
         if($findSensor){
+            $userID = $data->toArray()['node']['user_id'];
             if($userID === Auth::id()){
                 $delete = $data->delete();
 
-                $message = "Succes delete sensor data, id: $id";
+                $message = "Success delete sensor data, id: $id";
                 return response()->json($message, 200);
             }else{
                 $message = 'You can\'t delete another user\'s sensor';
