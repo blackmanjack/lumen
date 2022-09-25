@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Response;
 use App\Models\Sensor;
+use App\Models\User;
 use App\Models\Node;
 use App\Models\Hardware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HardwareController extends Controller
 {
@@ -27,6 +29,14 @@ class HardwareController extends Controller
             'type' => 'required',
             'description' => 'required'
         ]);
+
+        $userId = Auth::id();
+        $isAdmin = User::where('id', $userId)->pluck('is_admin')->first();
+
+        // if(!$isAdmin){
+        //     $message = "You're not admin";
+        //     return response()->json($message, 401);
+        // }
         
         $data = new Hardware();
         $data->name = $request->name;
@@ -45,16 +55,43 @@ class HardwareController extends Controller
 
     public function showAll()
     {
-        $data = Hardware::all();
-        //get all user's hardware
+        // $data = Hardware::select('hardwares.*')
+        //         ->join('nodes', 'hardwares.id', '=', 'nodes.hardware_id')
+        //         ->where('nodes.user_id', Auth::id())   
+        //         ->with('Sensor', 'Node')
+        //         ->get();
+
+        $data = Hardware::select('hardwares.*')  
+                ->with('Sensor', 'Node')
+                ->get();
+
+        // $userID = $data->toArray()['node'][0]['user_id'];
+        // $data = Hardware::
+        //         with('Node', 'Sensor')
+        //         ->first();
         return response($data);
     }
 
     public function showDetailData($id)
     {
-        $data = Hardware::where('id', $id)->first();
-        if($data){
-            return response()->json($data, 200);
+        $user_id = Auth::id();
+        $key = ['name' => 'Abigail', 
+                'state' => 'CA'];
+        $tes = json_encode($key);
+
+        // $findHardware = Node::where('user_id', $user_id)->pluck('hardware_id')->toArray();
+    
+        $data = Hardware::where('id', $id)->with('Node', 'Sensor')->first();
+        $node = $data->toArray()['node'];
+        if($data && $node !== []){
+            //cek node
+            $userID = $data->toArray()['node'][0]['user_id'];
+            if($userID === Auth::id()){
+                return response()->json($data, 200);
+            }else{
+                $message = 'You can\'t see another user\'s hardware';
+                return response()->json($message, 403);
+            }
         }
         else{
             $message = "Not found";
@@ -64,6 +101,11 @@ class HardwareController extends Controller
 
     public function update(Request $request, $id)
     {
+        $data = Hardware::where('id', $id)->first();
+        if($data == null){
+            $message = "Hardware Not Found";
+            return response()->json($message, 404);
+        }
         //only accept headers application/x-www-form-urlencoded
         $contentType = $request->headers->get('Content-Type');
         $split = explode(';', $contentType)[0];
@@ -79,8 +121,6 @@ class HardwareController extends Controller
             'description' => 'required'
         ]);
 
-        $data = Hardware::find($id);
-        
         if($request->type === 'single-board computer' || $request->type === 'microcontroller unit' || $request->type === 'sensor'){
             $update = $data->update([
                 'name'=> $request->name,
