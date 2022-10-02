@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('location');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
-            $table->unsignedBigInteger('hardware_id')->nullable();
+            $table->unsignedBigInteger('hardware_id');
             $table->foreign('hardware_id')->references('id')->on('hardwares');
             $table->timestamps();
         });

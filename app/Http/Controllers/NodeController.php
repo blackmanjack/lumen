@@ -129,12 +129,13 @@ class NodeController extends Controller
     public function delete($id)
     {
         $userid = Auth::id();
-        $data = Node::where('user_id', $userid)->where('id', $id)->first();
 
         $findNode = Node::where('id', $id)->first();
+        $CheckuserID = Node::where('id', $id)->pluck('user_id')->first();
+
         if($findNode){
-            if($data){
-                $data->delete();
+            if($CheckuserID == $userid){
+                $findNode->delete();
                 $message = "Success delete node, id: $id";
                 return response()->json($message, 200);
             }else{

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('unit');
             $table->unsignedBigInteger('node_id')->nullable();
             $table->foreign('node_id')->references('id')->on('nodes');
-            $table->unsignedBigInteger('hardware_id')->nullable();
+            $table->unsignedBigInteger('hardware_id');
             $table->foreign('hardware_id')->references('id')->on('hardwares');
             $table->timestamps();
         });
