@@ -47,7 +47,9 @@ class UserController extends Controller
         $data->username = $request->username;
         $data->password = Hash::make($request->password);
         $data->email = $request->email;
-        $data->token = Str::random(32);
+        $username = $data->username;
+        $password = $request->password;
+        $data->token = base64_encode($username.':'.$password);
 
         if($data->email === '' || $data->password === '' || $data->username === ''){
             $message = 'Parameter mustn\'t empty';
@@ -138,7 +140,8 @@ class UserController extends Controller
             if($statusCheck && $passwdCheck){
                 $update = DB::table('users')->select('*')
                                             ->where('username', $username)
-                                            ->update(['token' => base64_encode(Str::random(32))]);
+                                            // ->update(['token' => base64_encode(Str::random(32))]);
+                                            ->update(['token' => base64_encode($username.':'.$password)]);
                 $user1 = User::where('username', $username)->first();
                 $api_token = User::where('username', $username)->pluck('token')->first();
                 $res = ([
