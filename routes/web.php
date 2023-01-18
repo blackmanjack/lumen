@@ -30,6 +30,7 @@ $router->get('/user/activation', 'UserController@activate');
 $router->post('/user/login', 'UserController@login');
 $router->post('/user/forget-password', 'UserController@resetpasswd');
 
+// $router->group(['middleware' => 'auth.jwt'], function () use ($router) {
 $router->group(['middleware' => 'auth'], function () use ($router) {
     //admin
     $router->get('/user', 'AdminController@showAllDataUser');

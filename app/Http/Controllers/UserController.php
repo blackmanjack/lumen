@@ -124,51 +124,34 @@ class UserController extends Controller
             'username.required' => 'Parameter username mustn\'t empty',
             'password.required' => 'Password Is Required',
         ]);
+        
+        $credentials = request(['username', 'password']);
 
-        $username = $request->input('username');
-        $password = $request->input('password');
-
-        $user = User::where('username', $username)->first();
-        $hashpasswd = DB::table('user_person')->where('username', $username)
-                                        ->pluck('password')
-                                        ->first();
-        $statusCheck = DB::table('user_person')->where('username', $username)
+        $statusCheck = DB::table('users')->where('username', $credentials["username"])
                                         ->pluck('status')
                                         ->first();
-        $passwdCheck = Hash::check($password, $hashpasswd);
 
-        if($user){
-            if($statusCheck && $passwdCheck){
-                $update = DB::table('user_person')->select('*')
-                                            ->where('username', $username)
-                                            // ->update(['token' => base64_encode(Str::random(32))]);
-                                            ->update(['token' => base64_encode($username.':'.$password)]);
-                $user1 = User::where('username', $username)->first();
-                $api_token = User::where('username', $username)->pluck('token')->first();
-                $res = ([
-                    'message'=> 'Login Succesfullly',
-                    'data' => $user1,
-                    'api_token' => $api_token,
-                ]);
-                return response()->json($res, 200);
-            }else if(!$passwdCheck){
-                $res = ([
-                    'message'=> 'Wrong Password',
-                ]);
-                return response()->json($res, 400);
-            }else{
-                $res = ([
-                    'message'=> 'Please activate your account, check your email',
-                ]);
-                return response()->json($res, 400);
-            }
-        }else{
+        if (!$token = Auth::attempt($credentials)) {
             $res = ([
-                'message'=> 'User Not Found, Wrong Username',
+                'message'=> 'Username or password doesn\'t match our credentials!',
             ]);
             return response()->json($res, 404);
         }
-    
+
+        if(!$statusCheck){
+            $res = ([
+                'message'=> 'Please activate your account, check your email',
+            ]);
+            return response()->json($res, 400);
+        } else {
+            $user1 = User::where('username', $credentials["username"])->first();
+            $res = ([
+                'message'=> 'Login Succesfullly',
+                'data' => $user1,
+                'token' => $token,
+            ]);
+            return response()->json($res, 200);
+        }
     }
 
     public function resetpasswd(Request $request)
