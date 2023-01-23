@@ -30,7 +30,7 @@ $router->get('/user/activation', 'UserController@activate');
 $router->post('/user/login', 'UserController@login');
 $router->post('/user/forget-password', 'UserController@resetpasswd');
 
-// $router->group(['middleware' => 'auth'], function () use ($router) {
+$router->group(['middleware' => 'auth'], function () use ($router) {
     //admin
     $router->get('/user', 'AdminController@showAllDataUser');
     //user
@@ -58,4 +58,4 @@ $router->post('/user/forget-password', 'UserController@resetpasswd');
     $router->post('/channel', 'ChannelController@create');
     $router->get('/channel', 'ChannelController@showAll');
     $router->get('/channel/{id:[0-9]+}', 'ChannelController@showDetailData');
-// });
+});
