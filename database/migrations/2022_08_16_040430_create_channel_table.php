@@ -18,7 +18,7 @@ return new class extends Migration
             $table->float('value');
             $table->unsignedBigInteger('sensor_id')->nullable();
             $table->foreign('sensor_id')->references('id')->on('sensors');
-            $table->timestamps();
+            // $table->timestamps();
         });
     }
 

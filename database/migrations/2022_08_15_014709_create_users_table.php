@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('token');
             $table->boolean('status')->default('false');
             $table->boolean('is_admin')->default('false');
-            $table->timestamps();
+            // $table->timestamps();
         });
     }
 
