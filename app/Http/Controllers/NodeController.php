@@ -29,18 +29,18 @@ class NodeController extends Controller
         ]);
 
         $node = new Node();
-        $node->user_id = Auth::id();
+        $node->id_user = Auth::id();
         $node->name = $request->name;
         $node->location = $request->location;
         
-        if($request->hardware_id == null || $request->hardware_id == ""){
+        if($request->id_hardware == null || $request->id_hardware == ""){
             $node = $node->save();
             $message = "Success add new node";
             return response()->json($message, 201);
         }
 
-        $node->hardware_id = $request->hardware_id;
-        $findHardware = Hardware::where('id', $request->hardware_id)->pluck('type')->first();
+        $node->id_hardware = $request->id_hardware;
+        $findHardware = Hardware::where('id_hardware', $request->id_hardware)->pluck('type')->first();
         if($findHardware){
             if($findHardware == 'microcontroller unit' || $findHardware == 'single-board computer'){
                 $node = $node->save();
@@ -59,7 +59,7 @@ class NodeController extends Controller
     public function showAll()
     {
         $userid = Auth::id();
-        $data = Node::where('user_id', $userid)->get();
+        $data = Node::where('id_user', $userid)->get();
         return response($data);
     }
 
@@ -68,12 +68,12 @@ class NodeController extends Controller
         //query user and hardware
         $userid = Auth::id();
 
-        $data = Node::where('user_id', $userid)
-        ->where('id', $id)
-        ->with('User','Hardware', 'Sensor.Channel')
+        $data = Node::where('id_user', $userid)
+        ->where('id_node', $id)
+        ->with('User','Hardware')
         ->first();
 
-        $findNode = Node::where('id', $id)->first();
+        $findNode = Node::where('id_node', $id)->first();
         if($findNode){
             if($data){
                 return response()->json($data, 200);
@@ -104,11 +104,14 @@ class NodeController extends Controller
             'location' => 'required',
         ]);
 
-        $findNode = Node::where('id', $id)->first();
+        $findNode = Node::where('id_node', $id)->first();
 
-        $data = Node::where('user_id', $userid)->where('id', $id)->first(); 
+        $CheckuserID = Node::where('id_node', $id)->pluck('id_user')->first();
+
+        $data = Node::where('id_user', $userid)->where('id_node', $id)->first(); 
+
         if($findNode){
-            if($data){
+            if($data && $CheckuserID == $userid){
                 $update = $data->update([
                     'name'=> $request->name,
                     'location'=> $request->location,
@@ -130,8 +133,8 @@ class NodeController extends Controller
     {
         $userid = Auth::id();
 
-        $findNode = Node::where('id', $id)->first();
-        $CheckuserID = Node::where('id', $id)->pluck('user_id')->first();
+        $findNode = Node::where('id_node', $id)->first();
+        $CheckuserID = Node::where('id_node', $id)->pluck('id_user')->first();
 
         if($findNode){
             if($CheckuserID == $userid){

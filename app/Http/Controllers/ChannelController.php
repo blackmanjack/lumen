@@ -6,6 +6,8 @@ use App\Models\Channel;
 use App\Models\Sensor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ChannelController extends Controller
 {
@@ -23,17 +25,17 @@ class ChannelController extends Controller
     {
         $this->validate($request, [
             'value' => 'required',
-            'sensor_id' => 'required',
+            'id_sensor' => 'required',
         ]);
-
-        $data = new Channel();
-        $data->value = $request->value;
-        $data->sensor_id = $request->sensor_id;
         
-        $findSensor = Sensor::where('id', $request->sensor_id)->first();
+        $findSensor = Sensor::where('id_sensor', $request->id_sensor)->first();
 
         if($findSensor){
-            $save = $data->save();
+            DB::table('channel')->insert([
+                'value' => $request->value,
+                'id_sensor' => $request->id_sensor,
+                'time' => Carbon::now()
+            ]);
             $message = "Success add new Channel";
             return response()->json($message, 201);
         }else{
@@ -44,10 +46,10 @@ class ChannelController extends Controller
 
     public function showAll()
     {
-        $data = Channel::select('channels.*')
-                ->leftJoin('sensors', 'channels.sensor_id', '=', 'sensors.id')
-                ->leftJoin('nodes', 'nodes.id', '=', 'sensors.node_id')
-                ->where('nodes.user_id', Auth::id())
+        $data = Channel::select('channel.*')
+                ->leftJoin('sensor', 'channel.id_sensor', '=', 'sensor.id_sensor')
+                ->leftJoin('node', 'node.id_node', '=', 'sensor.id_node')
+                ->where('node.id_user', Auth::id())
                 ->with('Sensor')    
                 ->get();
 
@@ -56,11 +58,11 @@ class ChannelController extends Controller
 
     public function showDetailData($id)
     {
-        $data = Channel::select('channels.*')
-                ->leftJoin('sensors', 'channels.sensor_id', '=', 'sensors.id')
-                ->leftJoin('nodes', 'nodes.id', '=', 'sensors.node_id')
-                ->where('nodes.user_id', Auth::id())
-                ->where('channels.id', $id)
+        $data = Channel::select('channel.*')
+                ->leftJoin('sensor', 'channel.id_sensor', '=', 'sensor.id_sensor')
+                ->leftJoin('node', 'node.id_node', '=', 'sensor.id_node')
+                ->where('node.id_user', Auth::id())
+                ->where('channel.id', $id)
                 ->with('Sensor')    
                 ->first();
 
@@ -73,39 +75,4 @@ class ChannelController extends Controller
             }
     }
 
-    // public function update(Request $request, $id)
-    // {
-    //     $data = Channel::find($id);
-    //     // dd($request->all());
-    //     // return response($request);
-    //     $update = $data->update([
-    //         'name'=> $request->name,
-    //         'unit'=> $request->unit,
-    //     ]);
-
-    //      if($update){
-    //         $message = "Success edit Channel";
-    //         return response()->json($message, 200);
-    //     }else{
-    //         $message = "Empty Request Body";
-    //         return response()->json($message, 400);
-    //     }
-    //     return response($response);
-    // }
-
-    // public function delete($id)
-    // {
-    //     $data = Channel::find($id);
-    //     $delete = $data->delete();
-
-    //     if($delete){
-    //         $message = "Success delete Channel, id: $id";
-    //         return response()->json($message, 200);
-    //     }else{
-    //         $message = "Parameter is Invalid";
-    //         return response()->json($message, 404);
-    //     }
-    //     // return response($response);
-    // }
-    // //
 }

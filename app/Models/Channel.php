@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Channel extends Model
 {
-	protected $table = 'channels';
+	protected $table = 'channel';
+
+	public $timestamps = false;
 
 	protected $fillable = [
 		'value'
@@ -14,6 +16,6 @@ class Channel extends Model
 
 	public function sensor()
     {
-        return $this->belongsTo(Sensor::class);
+        return $this->belongsTo(Sensor::class, 'id_sensor');
     }
 }

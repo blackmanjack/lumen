@@ -5,14 +5,14 @@ TEST_TIME=10s
 SLEEP_TIME=10
 ITERATION=2
 CONCURENCY=(100)
-AUTH_METHOD=jwt
-USERNAME=postgres
-PASSWORD=postgres
+AUTH_METHOD=basic
+USERNAME=perftest
+PASSWORD=perftest
 init_db() {
   PGPASSWORD=postgres psql -h $HOST -U postgres postgres < dump.sql
 }
 drop_table_db() {
-  PGPASSWORD=postgres psql -h $HOST -U postgres postgres -c "DROP TABLE users, hardwares, nodes, sensors, channels;"
+  PGPASSWORD=postgres psql -h $HOST -U postgres postgres -c "DROP TABLE user_person, hardware, nodes, sensor, channel;"
 }
 rollback_db() {
   drop_table_db  

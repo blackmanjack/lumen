@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call('UsersTableSeeder');
+        // $this->call('user_personTableSeeder');
         User::create([
             'username' => 'admin',
             'email' => 'lumenpostgresql@gmail.com',
