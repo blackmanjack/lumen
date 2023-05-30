@@ -127,7 +127,7 @@ class UserController extends Controller
         
         $credentials = request(['username', 'password']);
 
-        $statusCheck = DB::table('users')->where('username', $credentials["username"])
+        $statusCheck = DB::table('user_person')->where('username', $credentials["username"])
                                         ->pluck('status')
                                         ->first();
 
