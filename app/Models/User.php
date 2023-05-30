@@ -18,6 +18,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      *
      * @var string[]
      */
+    protected $table = 'user_person';
+    public $timestamps = false;
+    protected $primaryKey = 'id_user';
     protected $fillable = [
         'username', 'email', 'password',
     ];
@@ -33,6 +36,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     public function node()
     {
-        return $this->hasMany(Node::class);
+        return $this->hasMany(Node::class, 'id_node');
     }
 }

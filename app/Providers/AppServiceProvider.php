@@ -13,6 +13,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton('importdb', function ($app) {
+            return new \App\Console\Commands\ImportSqlCommand;
+        });
+    
+        $this->commands([
+            'importdb',
+        ]);
     }
 }

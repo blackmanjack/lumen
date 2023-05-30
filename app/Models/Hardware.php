@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Hardware extends Model
 {
-	protected $table = 'hardwares';
+	protected $table = 'hardware';
 
 	protected $fillable = [
 		'name',
@@ -14,13 +14,17 @@ class Hardware extends Model
         'description'
 	];
 
+    protected $primaryKey = 'id_hardware';
+
+    public $timestamps = false;
+
 	public function node()
     {
-        return $this->hasMany(Node::class);
+        return $this->hasMany(Node::class, 'id_hardware');
     }
 
 	public function sensor()
     {
-        return $this->hasMany(Sensor::class);
+        return $this->hasMany(Sensor::class, 'id_hardware');
     }
 }

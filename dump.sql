@@ -24,20 +24,20 @@ SET default_table_access_method = heap;
 -- Name: channel; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.channels (
+CREATE TABLE public.channel (
     "time" timestamp without time zone,
     value double precision NOT NULL,
-    sensor_id integer NOT NULL
+    id_sensor integer NOT NULL
 );
 
 
-ALTER TABLE public.channels OWNER TO postgres;
+ALTER TABLE public.channel OWNER TO postgres;
 
 --
 -- Name: hardware; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.hardwares (
+CREATE TABLE public.hardware (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     type character varying(255) NOT NULL,
@@ -45,13 +45,13 @@ CREATE TABLE public.hardwares (
 );
 
 
-ALTER TABLE public.hardwares OWNER TO postgres;
+ALTER TABLE public.hardware OWNER TO postgres;
 
 --
--- Name: hardware_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: id_hardware_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.hardware_id_seq
+CREATE SEQUENCE public.id_hardware_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -60,13 +60,13 @@ CREATE SEQUENCE public.hardware_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.hardware_id_seq OWNER TO postgres;
+ALTER TABLE public.id_hardware_seq OWNER TO postgres;
 
 --
--- Name: hardware_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: id_hardware_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.hardware_id_seq OWNED BY public.hardwares.id;
+ALTER SEQUENCE public.id_hardware_seq OWNED BY public.hardware.id;
 
 
 --
@@ -77,18 +77,18 @@ CREATE TABLE public.nodes (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     location character varying(255) NOT NULL,
-    hardware_id integer,
-    user_id integer NOT NULL
+    id_hardware integer,
+    id_user integer NOT NULL
 );
 
 
 ALTER TABLE public.nodes OWNER TO postgres;
 
 --
--- Name: node_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: id_node_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.node_id_seq
+CREATE SEQUENCE public.id_node_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -97,35 +97,35 @@ CREATE SEQUENCE public.node_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.node_id_seq OWNER TO postgres;
+ALTER TABLE public.id_node_seq OWNER TO postgres;
 
 --
--- Name: node_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: id_node_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.node_id_seq OWNED BY public.nodes.id;
+ALTER SEQUENCE public.id_node_seq OWNED BY public.nodes.id;
 
 
 --
 -- Name: sensor; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.sensors (
+CREATE TABLE public.sensor (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     unit character varying(255) NOT NULL,
-    hardware_id integer,
-    node_id integer NOT NULL
+    id_hardware integer,
+    id_node integer NOT NULL
 );
 
 
-ALTER TABLE public.sensors OWNER TO postgres;
+ALTER TABLE public.sensor OWNER TO postgres;
 
 --
--- Name: sensors_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: sensor_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.sensor_id_seq
+CREATE SEQUENCE public.id_sensor_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -134,20 +134,20 @@ CREATE SEQUENCE public.sensor_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.sensor_id_seq OWNER TO postgres;
+ALTER TABLE public.id_sensor_seq OWNER TO postgres;
 
 --
--- Name: sensor_id_sensor_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: id_sensor_sensor_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.sensor_id_seq OWNED BY public.sensors.id;
+ALTER SEQUENCE public.id_sensor_seq OWNED BY public.sensor.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: postgres
+-- Name: user_person; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.users (
+CREATE TABLE public.user_person (
     id integer NOT NULL,
     email character varying(255) NOT NULL,
     username character varying(255) NOT NULL,
@@ -158,13 +158,13 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO postgres;
+ALTER TABLE public.user_person OWNER TO postgres;
 
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: user_person_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.users_id_seq
+CREATE SEQUENCE public.user_person_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -173,48 +173,48 @@ CREATE SEQUENCE public.users_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_id_seq OWNER TO postgres;
+ALTER TABLE public.user_person_id_seq OWNER TO postgres;
 
 --
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: user_person_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+ALTER SEQUENCE public.user_person_id_seq OWNED BY public.user_person.id;
 
 
 --
 -- Name: hardware id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.hardwares ALTER COLUMN id SET DEFAULT nextval('public.hardware_id_seq'::regclass);
+ALTER TABLE ONLY public.hardware ALTER COLUMN id SET DEFAULT nextval('public.id_hardware_seq'::regclass);
 
 
 --
 -- Name: node id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.nodes ALTER COLUMN id SET DEFAULT nextval('public.node_id_seq'::regclass);
+ALTER TABLE ONLY public.nodes ALTER COLUMN id SET DEFAULT nextval('public.id_node_seq'::regclass);
 
 
 --
 -- Name: sensor id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.sensors ALTER COLUMN id SET DEFAULT nextval('public.sensor_id_seq'::regclass);
+ALTER TABLE ONLY public.sensor ALTER COLUMN id SET DEFAULT nextval('public.id_sensor_seq'::regclass);
 
 
 --
--- Name: users id_user; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: user_person id_user; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+ALTER TABLE ONLY public.user_person ALTER COLUMN id SET DEFAULT nextval('public.user_person_id_seq'::regclass);
 
 
 --
 -- Data for Name: channel; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.channels ("time", value, sensor_id) FROM stdin;
+COPY public.channel ("time", value, id_sensor) FROM stdin;
 2022-11-17 10:57:13.452926	0.9579552769425297	1
 2022-11-17 10:57:13.477054	0.6297907487241889	2
 2022-11-17 10:57:13.500395	0.27946087218789406	1
@@ -10222,7 +10222,7 @@ COPY public.channels ("time", value, sensor_id) FROM stdin;
 -- Data for Name: hardware; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.hardwares (id, name, type, description) FROM stdin;
+COPY public.hardware (id, name, type, description) FROM stdin;
 1	4p7hi0c2c3	single-board computer	66cbxu8wb9p0t7xhve3j
 2	7rznzbst61	single-board computer	2kaj7ent3c8jyacusfdw
 3	lnutgjudva	microcontroller unit	71xxjtvn7pi2ek4b9lbp
@@ -11430,7 +11430,7 @@ COPY public.hardwares (id, name, type, description) FROM stdin;
 -- Data for Name: node; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.nodes (id, name, location, hardware_id, user_id) FROM stdin;
+COPY public.nodes (id, name, location, id_hardware, id_user) FROM stdin;
 1	mgyk8m6qj4	1dqcra0	1	1
 5	5918mesldc	595u401	6	1
 8	mhah57jtql	zmsjlr6	9	1
@@ -11638,7 +11638,7 @@ COPY public.nodes (id, name, location, hardware_id, user_id) FROM stdin;
 -- Data for Name: sensor; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.sensors (id, name, unit, hardware_id, node_id) FROM stdin;
+COPY public.sensor (id, name, unit, id_hardware, id_node) FROM stdin;
 1	358qownoy1	9n6jhsc	10	1
 2	qm3epjrfz2	u1wdtfh	12	5
 3	xs2itp5lmi	9tcqwiu	11	3
@@ -12643,10 +12643,10 @@ COPY public.sensors (id, name, unit, hardware_id, node_id) FROM stdin;
 
 
 --
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: user_person; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.users (id, email, username, password, status, token, is_admin) FROM stdin;
+COPY public.user_person (id, email, username, password, status, token, is_admin) FROM stdin;
 1	bintangf00code@gmail.com	perftest	3c31bc6fa467cea84245bf86d594f17936880674f320b94b2cef9f73ac71e51f	t	dbb68d97021afbdb7bf0f2beb87705ecd9073a5737a7ced8c9be4680ee9d3549	f
 2	cwqzhckw09@example.com	dx07uz	cc5be9f73e1895a1fa411902d0141048d4cc7c1625652555ab581c062fa6cccb	t	72da64d6ad4f5cc333d751f668bdd9b0674f8ecf8cf68dfa4e24ccebe25baee8	f
 3	6q6ynk1zrx@example.com	z0gz8l	e988042fa61742daad83b8b08929945971c35cad96ec4ea5ca6c5f846b310da1	t	a310f6399b4a61287532089d4030d9a314bcbe46df4c55dad9cd200214d80755	f
@@ -12671,38 +12671,38 @@ COPY public.users (id, email, username, password, status, token, is_admin) FROM 
 
 
 --
--- Name: hardware_id_hardware_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: id_hardware_hardware_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.hardware_id_seq', 1200, true);
-
-
---
--- Name: node_id_node_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.node_id_seq', 200, true);
+SELECT pg_catalog.setval('public.id_hardware_seq', 1200, true);
 
 
 --
--- Name: sensor_id_sensor_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: id_node_node_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.sensor_id_seq', 1000, true);
+SELECT pg_catalog.setval('public.id_node_seq', 200, true);
 
 
 --
--- Name: users_id_user_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: id_sensor_sensor_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 20, true);
+SELECT pg_catalog.setval('public.id_sensor_seq', 1000, true);
+
+
+--
+-- Name: user_person_id_user_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.user_person_id_seq', 20, true);
 
 
 --
 -- Name: hardware hardware_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.hardwares
+ALTER TABLE ONLY public.hardware
     ADD CONSTRAINT hardware_pkey PRIMARY KEY (id);
 
 
@@ -12718,56 +12718,56 @@ ALTER TABLE ONLY public.nodes
 -- Name: sensor sensor_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.sensors
+ALTER TABLE ONLY public.sensor
     ADD CONSTRAINT sensor_pkey PRIMARY KEY (id);
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: user_person user_person_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.user_person
+    ADD CONSTRAINT user_person_pkey PRIMARY KEY (id);
 
 
 --
 -- Name: channel channel_id_sensor_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.channels
-    ADD CONSTRAINT channel_id_sensor_fkey FOREIGN KEY (sensor_id) REFERENCES public.sensors(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.channel
+    ADD CONSTRAINT channel_id_sensor_fkey FOREIGN KEY (id_sensor) REFERENCES public.sensor(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: node node_id_hardware_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.nodes
-    ADD CONSTRAINT node_id_hardware_fkey FOREIGN KEY (hardware_id) REFERENCES public.hardwares(id) ON UPDATE CASCADE;
-
-
---
--- Name: node node_id_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: node id_node_hardware_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.nodes
-    ADD CONSTRAINT node_id_user_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE;
+    ADD CONSTRAINT id_node_hardware_fkey FOREIGN KEY (id_hardware) REFERENCES public.hardware(id) ON UPDATE CASCADE;
 
 
 --
--- Name: sensor sensor_id_hardware_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: node id_node_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.sensors
-    ADD CONSTRAINT sensor_id_hardware_fkey FOREIGN KEY (hardware_id) REFERENCES public.hardwares(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.nodes
+    ADD CONSTRAINT id_node_user_fkey FOREIGN KEY (id_user) REFERENCES public.user_person(id) ON UPDATE CASCADE;
 
 
 --
--- Name: sensor sensor_id_node_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: sensor id_sensor_hardware_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.sensors
-    ADD CONSTRAINT sensor_node_id_fkey FOREIGN KEY (node_id) REFERENCES public.nodes(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.sensor
+    ADD CONSTRAINT id_sensor_hardware_fkey FOREIGN KEY (id_hardware) REFERENCES public.hardware(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sensor id_sensor_node_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sensor
+    ADD CONSTRAINT id_sensor_node_fkey FOREIGN KEY (id_node) REFERENCES public.nodes(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
