@@ -22,9 +22,8 @@ class DatabaseSeeder extends Seeder
             'username' => 'admin',
             'email' => 'lumenpostgresql@gmail.com',
             'password' => Hash::make('adminLumen22'),
-            'is_admin' => true,
-            'status' => true,
-            'token' => base64_encode(Str::random(32))   
+            'isadmin' => true,
+            'status' => true,   
         ]);
     }
 }

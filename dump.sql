@@ -154,7 +154,7 @@ CREATE TABLE public.user_person (
     password character varying(255) NOT NULL,
     status boolean DEFAULT false NOT NULL,
     token character varying(255) NOT NULL,
-    is_admin boolean DEFAULT false NOT NULL
+    isadmin boolean DEFAULT false NOT NULL
 );
 
 
@@ -12646,7 +12646,7 @@ COPY public.sensor (id, name, unit, id_hardware, id_node) FROM stdin;
 -- Data for Name: user_person; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.user_person (id, email, username, password, status, token, is_admin) FROM stdin;
+COPY public.user_person (id, email, username, password, status, token, isadmin) FROM stdin;
 1	bintangf00code@gmail.com	perftest	3c31bc6fa467cea84245bf86d594f17936880674f320b94b2cef9f73ac71e51f	t	dbb68d97021afbdb7bf0f2beb87705ecd9073a5737a7ced8c9be4680ee9d3549	f
 2	cwqzhckw09@example.com	dx07uz	cc5be9f73e1895a1fa411902d0141048d4cc7c1625652555ab581c062fa6cccb	t	72da64d6ad4f5cc333d751f668bdd9b0674f8ecf8cf68dfa4e24ccebe25baee8	f
 3	6q6ynk1zrx@example.com	z0gz8l	e988042fa61742daad83b8b08929945971c35cad96ec4ea5ca6c5f846b310da1	t	a310f6399b4a61287532089d4030d9a314bcbe46df4c55dad9cd200214d80755	f

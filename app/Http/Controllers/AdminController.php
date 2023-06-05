@@ -17,7 +17,7 @@ class ExampleController extends Controller
     public function showAllDataUser()
     {
         $id = Auth::id();
-        $isAdmin = User::where('id', $id)->pluck('is_admin')->first();
+        $isAdmin = User::where('id_user', $id)->pluck('isadmin')->first();
         if($isAdmin){
             $data = User::with('Node.Hardware', 'Node.Sensor.Channel')->get();
             return response()->json($data, 200);
