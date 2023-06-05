@@ -23,8 +23,8 @@ class Hardware extends Model
         return $this->hasMany(Node::class, 'id_hardware');
     }
 
-	public function sensor()
-    {
-        return $this->hasMany(Sensor::class, 'id_hardware');
-    }
+	// public function sensor()
+    // {
+    //     return $this->hasMany(Sensor::class, 'id_hardware');
+    // }
 }

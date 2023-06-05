@@ -8,6 +8,8 @@ use App\Models\Node;
 use App\Models\Hardware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Token;
 
 class HardwareController extends Controller
 {
@@ -29,14 +31,19 @@ class HardwareController extends Controller
             'type' => 'required',
             'description' => 'required'
         ]);
+        //check admin role
+        $token = explode(' ', $request->header('Authorization'));
+        $jwtToken = new Token($token[1]);
+        $decodedToken = JWTAuth::manager()->decode($jwtToken);
+    
+        // Access the token claims
+        $claims = $decodedToken->getClaims();
+        $isAdmin = $claims['isadmin']->getValue();
 
-        $userId = Auth::id();
-        // $isAdmin = User::where('id_user', $userId)->pluck('isadmin')->first();
-
-        // if(!$isAdmin){
-        //     $message = "You're not admin";
-        //     return response()->json($message, 401);
-        // }
+        if(!$isAdmin){
+            $message = "You are not admin";
+            return response()->json($message, 403);
+        }
         
         $data = new Hardware();
         $data->name = $request->name;
@@ -62,7 +69,7 @@ class HardwareController extends Controller
         //         ->get();
 
         $data = Hardware::select('hardware.*')  
-                ->with('Sensor','Node')
+                ->with('Node')
                 ->get();
 
         // $userID = $data->toArray()['node'][0]['id_user'];
@@ -81,7 +88,7 @@ class HardwareController extends Controller
 
         // $findHardware = Node::where('id_user', $id_user)->pluck('id_hardware')->toArray();
     
-        $data = Hardware::where('id_hardware', $id)->with('Node', 'Sensor')->first();
+        $data = Hardware::where('id_hardware', $id)->with('Node')->first();
 
         if($data){
             return response()->json($data, 200);
@@ -106,6 +113,20 @@ class HardwareController extends Controller
 
     public function update(Request $request, $id)
     {
+        //check admin role
+        $token = explode(' ', $request->header('Authorization'));
+        $jwtToken = new Token($token[1]);
+        $decodedToken = JWTAuth::manager()->decode($jwtToken);
+    
+        // Access the token claims
+        $claims = $decodedToken->getClaims();
+        $isAdmin = $claims['isadmin']->getValue();
+
+        if(!$isAdmin){
+            $message = "You are not admin";
+            return response()->json($message, 403);
+        }
+        //check hardware
         $data = Hardware::where('id_hardware', $id)->first();
         if($data == null){
             $message = "Hardware Not Found";
@@ -142,6 +163,20 @@ class HardwareController extends Controller
 
     public function delete($id)
     {
+        //check admin role
+        $token = explode(' ', $request->header('Authorization'));
+        $jwtToken = new Token($token[1]);
+        $decodedToken = JWTAuth::manager()->decode($jwtToken);
+    
+        // Access the token claims
+        $claims = $decodedToken->getClaims();
+        $isAdmin = $claims['isadmin']->getValue();
+
+        if(!$isAdmin){
+            $message = "You are not admin";
+            return response()->json($message, 403);
+        }
+
         $data = Hardware::where('id_hardware', $id)
         ->with('Node', 'Sensor')
         ->first();
