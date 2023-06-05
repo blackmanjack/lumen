@@ -161,10 +161,13 @@ class UserController extends Controller
         } else {
             $user = User::where('username', $credentials["username"])->first();
             
+            $isAdmin = User::where('username', $credentials["username"])
+                                        ->pluck('isadmin')
+                                        ->first();
             $payload = [
                 "username" => $user["username"],
                 "id_user" => $user["id_user"],
-                "isadmin" => 0
+                "isadmin" => $isAdmin
             ];
             
             $newtoken = JWTAuth::customClaims($payload)->fromUser($user);
