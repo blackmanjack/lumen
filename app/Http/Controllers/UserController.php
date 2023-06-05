@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Token;
 
 
 class UserController extends Controller
@@ -49,7 +51,7 @@ class UserController extends Controller
         $data->email = $request->email;
         $username = $data->username;
         $password = $request->password;
-        $data->token = base64_encode($username.':'.$password);
+        
 
         if($data->email === '' || $data->password === '' || $data->username === ''){
             $message = 'Parameter mustn\'t empty';
@@ -57,7 +59,14 @@ class UserController extends Controller
         }
         $save = $data->save();
 
-        $token = $data->token;
+        $payload = [
+            "username" => $data["username"],
+            "id_user" => $data["id_user"],
+            "isadmin" => 0
+        ];
+        
+        $token = JWTAuth::customClaims($payload)->fromUser($data);
+
         $url = env('APP_URL') . ':' . env('APP_PORT') . '/user/activation?token=' . $token;
 
         if($save){
@@ -85,18 +94,24 @@ class UserController extends Controller
     public function activate(Request $request)
     {
         $token = $request->token;
-        // $token = Str::random(32);
-        $findObj = DB::table('user_person')->where('token', $token)
-                                    ->pluck('token')
+        $jwtToken = new Token($token);
+        $decodedToken = JWTAuth::manager()->decode($jwtToken);
+    
+        // Access the token claims
+        $claims = $decodedToken->getClaims();
+        $username = $claims['username']->getValue();
+
+        $findObj = DB::table('user_person')->where('username', $username)
+                                    ->pluck('username')
                                     ->first();
 
         if($findObj) {
-            $statusCheck = DB::table('user_person')->where('token', $token)
+            $statusCheck = DB::table('user_person')->where('username', $username)
                                             ->pluck('status')
                                             ->first();
             if($statusCheck === false){
                 $update = DB::table('user_person')->select('*')
-                                            ->where('token', $token)
+                                            ->where('username', $username)
                                             ->update(['status' => 1]);
                 
                 $message = 'Your account has been activated';
@@ -144,11 +159,19 @@ class UserController extends Controller
             ]);
             return response()->json($res, 400);
         } else {
-            $user1 = User::where('username', $credentials["username"])->first();
+            $user = User::where('username', $credentials["username"])->first();
+            
+            $payload = [
+                "username" => $user["username"],
+                "id_user" => $user["id_user"],
+                "isadmin" => 0
+            ];
+            
+            $newtoken = JWTAuth::customClaims($payload)->fromUser($user);
             $res = ([
                 'message'=> 'Login Succesfullly',
-                'data' => $user1,
-                'token' => $token,
+                'data' => $user,
+                'token' => $newtoken,
             ]);
             return response()->json($res, 200);
         }
@@ -164,9 +187,8 @@ class UserController extends Controller
         $email = $request->email;
 
         $emailFind = User::where('email', $email)->first();
-        // dd(emailFind);
-        $userFind = User::where('email', $email)->pluck('username')->first();
 
+        $userFind = User::where('email', $email)->pluck('username')->first();
 
         // $passwdCheck = DB::table('user_person')->where('id', $id)->pluck('password')->first();
         if($username !== '' || $email !== ''){
@@ -174,7 +196,6 @@ class UserController extends Controller
                 //update random passwd and send to email's user
                 $newpasswd = Str::random(10);
                 $emailFind->password = Hash::make($newpasswd);
-                $emailFind->token = base64_encode($username.':'.$newpasswd);
                 
                 $update = $emailFind->save();
 
@@ -234,7 +255,7 @@ class UserController extends Controller
         
         if($passwdCheck){
             $data->password = Hash::make($newpasswd);
-            $data->token = base64_encode($username.':'.$newpasswd);
+
             $update = $data->save();
 
             $res = ([
@@ -251,7 +272,7 @@ class UserController extends Controller
     public function delete($id)
     {
         $userid = Auth::id();
-        if($id !== $userid){
+        if(intval($id) !== $userid){
             $message = "Can\'t delete another user\'s account";
             return response()->json($message, 403);
         }
