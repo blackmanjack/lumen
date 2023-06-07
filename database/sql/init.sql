@@ -24,31 +24,31 @@ create table node(
     foreign key (id_hardware_node) references hardware (id_hardware) on update cascade on delete cascade,
     foreign key (id_user) references user_person (id_user) on update cascade on delete cascade
 );
-ALTER TABLE node
-    ALTER COLUMN field_sensor SET DEFAULT '{}'::text[];
+-- ALTER TABLE node
+--     ALTER COLUMN field_sensor SET DEFAULT '{}'::text[];
 
-CREATE OR REPLACE FUNCTION set_default_field_sensor()
-    RETURNS TRIGGER AS $$
-BEGIN
-    NEW.field_sensor[1] := '';
-    NEW.field_sensor[2] := '';
-    NEW.field_sensor[3] := '';
-    NEW.field_sensor[4] := '';
-    NEW.field_sensor[5] := '';
-    NEW.field_sensor[6] := '';
-    NEW.field_sensor[7] := '';
-    NEW.field_sensor[8] := '';
-    NEW.field_sensor[9] := '';
-    NEW.field_sensor[10] := '';
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION set_default_field_sensor()
+--     RETURNS TRIGGER AS $$
+-- BEGIN
+--     NEW.field_sensor[1] := '';
+--     NEW.field_sensor[2] := '';
+--     NEW.field_sensor[3] := '';
+--     NEW.field_sensor[4] := '';
+--     NEW.field_sensor[5] := '';
+--     NEW.field_sensor[6] := '';
+--     NEW.field_sensor[7] := '';
+--     NEW.field_sensor[8] := '';
+--     NEW.field_sensor[9] := '';
+--     NEW.field_sensor[10] := '';
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER set_default_field_sensor_trigger
-    BEFORE INSERT OR UPDATE ON node
-    FOR EACH ROW
-    WHEN (pg_trigger_depth() = 0)
-    EXECUTE FUNCTION set_default_field_sensor();
+-- CREATE TRIGGER set_default_field_sensor_trigger
+--     BEFORE INSERT OR UPDATE ON node
+--     FOR EACH ROW
+--     WHEN (pg_trigger_depth() = 0)
+--     EXECUTE FUNCTION set_default_field_sensor();
     
 create table feed(
     id_node integer not null,
