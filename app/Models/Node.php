@@ -8,10 +8,8 @@ class Node extends Model
 {
 	protected $table = 'node';
 
-	protected $fillable = [
-		'name',
-		'location',
-	];
+	protected $fillable = ['name', 'location', 'id_hardware_node', 'id_user', 'is_public', 'id_hardware_sensor', 'field_sensor'];
+
 
     public $timestamps = false;
     protected $primaryKey = 'id_node';

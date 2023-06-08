@@ -26,11 +26,6 @@ class NodeController extends Controller
 
 public function create(Request $request)
 {
-    // $authentication = check_token($request);
-    // if ($authentication[0]) {
-    //     $authtoken = $authentication[1];
-    //     $node = $request->json()->all();
-
         try {
             $this->validate($request, [
                 'name' => 'required',
@@ -45,19 +40,6 @@ public function create(Request $request)
             $node->id_hardware_node = $request->id_hardware_node;
             $node->id_hardware_sensor = $request->id_hardware_sensor;
             $node->field_sensor = $request->field_sensor;
-            // $validator = Validator::make($node, [
-            //     'name' => 'required',
-            //     'location' => 'required',
-            //     'id_hardware_node' => 'required|integer',
-            // ]);
-
-            // if ($validator->fails()) {
-            //     return response()->json([
-            //         'description' => 'Bad Request',
-            //         'status' => 400,
-            //         'message' => $validator->errors()->first(),
-            //     ], 400);
-            // }
 
             // VALIDATE id_hardware_node type should be for node
             $hardwareType = DB::table('hardware')
@@ -97,15 +79,8 @@ public function create(Request $request)
         // VALIDATE id_hardware_sensor exist and should be type sensor
         if (isset($node['id_hardware_sensor'])) {
             $arraysensor = $node['id_hardware_sensor'];
-            // dd(gettype($arraysensor), $arraysensor);
-            // $dt_sensor = explode(',', str_replace(['{', '}'], '', $arraysensor));
             foreach ($arraysensor as $x) {
                 if ($x !== 'NULL') {
-                    // dd($x);
-                    // $query = "SELECT hardware.type FROM hardware WHERE id_hardware = :x";
-                    // $rows = DB::select($query, ['x' => $x]);
-                    // $query = "SELECT hardware.type FROM hardware WHERE id_hardware = :idHardware";
-                    // $rows = DB::select($query, ['idHardware' => $x]);
                     $rows = DB::select("SELECT hardware.type FROM hardware WHERE id_hardware = $x");
                     if (count($rows) > 0) {
                         $res_hardware = $rows[0];
@@ -130,74 +105,12 @@ public function create(Request $request)
         } else {
             $arraysensor = '{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}';
         }
-        // dd($arraysensor);
-
-        // try {
-        //     // VALIDATE id_hardware_sensor exist and should be type sensor
-        //     $arraySensor = isset($node['id_hardware_sensor']) ? $node['id_hardware_sensor'] : [];
-        //     // dd($arraySensor);
-        //     foreach ($arraySensor as $sensorId) {
-        //         if ($sensorId !== null) {
-        //             $hardwareType = DB::table('hardware')
-        //                 ->select('type')
-        //                 ->where('id_hardware', $sensorId)
-        //                 ->value('type');
-
-        //             if (empty($hardwareType)) {
-        //                 return response()->json([
-        //                     'description' => 'Bad Request',
-        //                     'status' => 400,
-        //                     'message' => 'Id hardware for sensor not found. id = ' . $sensorId,
-        //                 ], 400);
-        //             }
-
-        //             if ($hardwareType != 'sensor') {
-        //                 return response()->json([
-        //                     'description' => 'Bad Request',
-        //                     'status' => 400,
-        //                     'message' => 'Hardware sensor type not match, type should be sensor. id = ' . $sensorId,
-        //                 ], 400);
-        //             }
-        //         }
-        //     }
-        //     // dd($arraySensor);
-        // } catch (\Exception $e) {
-        //     $arraySensor = [];
-        // }
-
-        // try {
-        //     // VALIDATE the field should be registered on existed sensor column
-        //     $arrayField = isset($node['field_sensor']) ? $node['field_sensor'] : [];
-        //     // dd($arrayField);
-        //     foreach ($arrayField as $index => $field) {
-        //         // dd($arrayField);
-        //         if ($field !== null) {
-        //             if (!isset($arraySensor[$index])) {
-        //             // if ($arraySensor[$index] === null) {
-        //                 return response()->json([
-        //                     'description' => 'Bad Request',
-        //                     'status' => 400,
-        //                     'message' => 'Field sensor is empty. field = ' . $index,
-        //                 ], 400);
-        //             }
-        //         }
-        //     }
-        //     // dd($arrayField);
-        // } catch (\Exception $e) {
-        //     $arrayField = [];
-        // }
-
-        // dd($arrayField);
 
         // VALIDATE the field should be registered on existed sensor column
         $arrayField = isset($node['field_sensor']) ? $node['field_sensor'] : [];
 
         if (isset($node['field_sensor'])) {
             $arrayfield = $node['field_sensor'];
-            // dd(implode(',', $arrayfield));
-            // dd($arrayfield);
-            // $dt_field = $arrayfield;
-            // $dt_field = explode(',', str_replace(['{', '}'], '', $arrayfield));
             for ($x = 0; $x < count($arrayfield); $x++) {
                 // dd($arrayfield[0], $arraysensor[0]);
                 if ($arrayfield[$x] !== 'NULL') {
@@ -216,34 +129,8 @@ public function create(Request $request)
             $arrayfield = '{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}';
         }
 
-        // foreach ($array as $index => $field) {
-        //     if ($field !== null) {
-        //         if (!isset($arraySensor[$index])) {
-        //             dd(!isset($arraySensor[$index]), $arraySensor[$index] === null);
-        //         // if ($arraySensor[$index] === null) {
-        //             return response()->json([
-        //                 'description' => 'Bad Request',
-        //                 'status' => 400,
-        //                 'message' => 'Field sensor is empty. field = ' . $index,
-        //             ], 400);
-        //         }
-        //     }
-        // }
-
-        // $arraySensor = array_map(function ($value) {
-        //     return $value === null ? 'NULL' : $value;
-        // }, $arraysensor);
-        
-        // $arrayField = array_map(function ($value) {
-        //     return $value === null ? 'NULL' : $value;
-        // }, $arrayfield);
         $id_user = Auth::id();
-        // dd($node['field_sensor'], $node['id_hardware_sensor']);
-        // dd($arraysensor, $arrayfield);
-        // dd(json_encode($arraySensor),json_encode($arrayField));
-        // dd('hai');
-        // dd(gettype($arraysensor));
-        // INSERT value
+
         DB::table('node')->insert([
             'name' => $node['name'],
             'location' => $node['location'],
@@ -259,13 +146,6 @@ public function create(Request $request)
             'status' => 201,
             'message' => 'Successfully add new node',
         ], 201);
-    // } else {
-    //     return response()->json([
-    //         'description' => 'Forbidden',
-    //         'status' => 403,
-    //         'message' => 'You are unauthorized, invalid token.',
-    //     ], 403);
-    // }
 }
 
 
@@ -335,7 +215,7 @@ public function create(Request $request)
 
         $node = Node::where('id_user', $userid)
         ->where('id_node', $id)
-        ->with('User','Hardware')
+        // ->with('User','Hardware') To do: ->with('Feed')
         ->first();
 
         $findNode = Node::where('id_node', $id)->first();
@@ -357,6 +237,7 @@ public function create(Request $request)
         //only accept headers application/x-www-form-urlencoded
         $contentType = $request->headers->get('Content-Type');
         $split = explode(';', $contentType)[0];
+        // dd($split);
         if($split !== "application/x-www-form-urlencoded"){
             $message = "Supported format: application/x-www-form-urlencoded";
             return response()->json($message, 415);
@@ -364,23 +245,171 @@ public function create(Request $request)
         
         $userid = Auth::id();
 
-        $this->validate($request, [
-            'name' => 'required',
-            'location' => 'required',
-        ]);
-
         $findNode = Node::where('id_node', $id)->first();
 
         $CheckuserID = Node::where('id_node', $id)->pluck('id_user')->first();
 
-        $node = Node::where('id_user', $userid)->where('id_node', $id)->first(); 
+        $nodes = Node::where('id_user', $userid)->where('id_node', $id)->first(); 
 
         if($findNode){
-            if($node && $CheckuserID == $userid){
-                $update = $node->update([
-                    'name'=> $request->name,
-                    'location'=> $request->location,
+            //To do add admin check, admin also can update user's node
+            if($nodes && $CheckuserID == $userid){ 
+                
+                try {
+                    $this->validate($request, [
+                        'name' => 'required',
+                        'location' => 'required',
+                        'id_hardware_node' => 'required|integer',
+                    ]);
+                    
+                    $node = new Node();
+                    $node->id_user = Auth::id();
+                    $node->name = $request->name;
+                    $node->location = $request->location;
+                    $node->id_hardware_node = $request->id_hardware_node;
+                    $node->id_hardware_sensor = $request->id_hardware_sensor;
+                    $node->field_sensor = $request->field_sensor;
+                    $node->is_public = $request->is_public;
+                    // VALIDATE id_hardware_node type should be for node
+                    $hardwareType = DB::table('hardware')
+                        ->select('type')
+                        ->where('id_hardware', $node['id_hardware_node'])
+                        ->value('type');
+        
+                    if (empty($hardwareType)) {
+                        return response()->json([
+                            'description' => 'Bad Request',
+                            'status' => 400,
+                            'message' => 'Id hardware for node not found',
+                        ], 400);
+                    }
+        
+                    if ($hardwareType != 'single-board computer' && $hardwareType != 'microcontroller unit') {
+                        return response()->json([
+                            'description' => 'Bad Request',
+                            'status' => 400,
+                            'message' => 'Hardware node type not match, type should be single-board computer or microcontroller unit',
+                        ], 400);
+                    }
+                } catch (\Exception $e) {
+                    // dd($e);
+                    // return response()->json([
+                    //     'description' => 'Bad Request',
+                    //     'status' => 400,
+                    //     'message' => 'Missing parameter',
+                    // ], 400);
+                }
+        
+                try {
+                    $isPublic = isset($node['is_public']) ? (bool) $node['is_public'] : false;
+                } catch (\Exception $e) {
+                    $isPublic = false;
+                }
+        
+                // VALIDATE id_hardware_sensor exist and should be type sensor
+                if (isset($node['id_hardware_sensor'])) {
+                    $arraysensor = $node['id_hardware_sensor'];
+                    foreach ($arraysensor as $x) {
+                        if ($x !== 'NULL') {
+                            $rows = DB::select("SELECT hardware.type FROM hardware WHERE id_hardware = $x");
+                            if (count($rows) > 0) {
+                                $res_hardware = $rows[0];
+                                if ($res_hardware->type == 'sensor') {
+                                    $valid = 1;
+                                } else {
+                                    return response()->json([
+                                        'description' => 'Bad Request',
+                                        'status' => 400,
+                                        'message' => "Hardware sensor type not match, type should be sensor. id = $x"
+                                    ], 400);
+                                }
+                            } else {
+                                return response()->json([
+                                    'description' => 'Bad Request',
+                                    'status' => 400,
+                                    'message' => "Id hardware for sensor not found. id = $x"
+                                ], 400);
+                            }
+                        }
+                    }
+                } else {
+                    $arraysensor = '{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}';
+                }
+        
+                // VALIDATE the field should be registered on existed sensor column
+                $arrayField = isset($node['field_sensor']) ? $node['field_sensor'] : [];
+        
+                if (isset($node['field_sensor'])) {
+                    $arrayfield = $node['field_sensor'];
+                    for ($x = 0; $x < count($arrayfield); $x++) {
+                        // dd($arrayfield[0], $arraysensor[0]);
+                        if ($arrayfield[$x] !== 'NULL') {
+                            if ($arraysensor[$x] !== 'NULL') {
+                                $valid = 1;
+                            } else {
+                                return response()->json([
+                                    'description' => 'Bad Request',
+                                    'status' => 400,
+                                    'message' => "Field sensor is empty. field = $x"
+                                ], 400);
+                            }
+                        }
+                    }
+                } else {
+                    $arrayfield = '{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}';
+                }
+
+                // dd($arraysensor, gettype($arraysensor));
+        
+                // dd($id);
+                // $tes = DB::table('node')->where('id_node', $id)->first();
+                // dd($tes);
+                // DB::table('node')->where('id_node', $id)->update([
+                //     'name' => $nodes['name'],
+                //     'location' => $nodes['location'],
+                //     'id_hardware_node' => $nodes['id_hardware_node'],
+                //     'id_user' => $userid,
+                //     'is_public' => $isPublic,
+                //     'id_hardware_sensor' => '{'.implode(',', $arraysensor).'}',
+                //     'field_sensor' => '{'.implode(',', $arrayfield).'}',
+                // ]);
+                // $response = Http::withHeaders([
+                //     'Content-Type' => 'application/x-www-form-urlencoded',
+                // ])->put('localhost:8000/node/3', [
+                //     'name' => $nodes['name'],
+                //     'location' => $nodes['location'],
+                //     'id_hardware_node' => $nodes['id_hardware_node'],
+                //     'id_user' => $userid,
+                //     'is_public' => $isPublic,
+                //     'id_hardware_sensor' => '{'.implode(',', $arraysensor).'}',
+                //     'field_sensor' => '{'.implode(',', $arrayfield).'}',
+                // ]);
+                // $convArraySensor = '{'.implode(',', $arraysensor).'}';
+                // $convArrayField = '{'.implode(',', $arrayfield).'}';
+                $tes = Node::find($id);
+                // // dd($tes, $arraysensor);
+                $update = $tes->update([
+                    'name' => $node['name'],
+                    'location' => $node['location'],
+                    'id_hardware_node' => $node['id_hardware_node'],
+                    'id_user' => $userid,
+                    'is_public' => $isPublic,
+                    'id_hardware_sensor' => '{'.implode(',', $arraysensor).'}',
+                    'field_sensor' => '{'.implode(',', $arrayfield).'}',
                 ]);
+
+                // dd($isPublic, gettype($isPublic));
+
+    //             $sql = "
+    //     UPDATE node
+    //     SET name = '{$nodes['name']}', location = '{$nodes['location']}', id_hardware_node = {$nodes['id_hardware_node']},
+    //     is_public = CAST({$isPublic} AS BOOLEAN), id_hardware_sensor = '{$convArraySensor}', field_sensor = '{$convArrayField}'
+    //     WHERE id_node = {$id}
+    // ";
+
+    // $rows = app('db')->statement($sql);
+
+                // dd($update);
         
                 $message = "Success edit node";
                 return response()->json($message, 200);
