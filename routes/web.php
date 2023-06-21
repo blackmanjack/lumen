@@ -55,8 +55,6 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->get('/sensor/{id:[0-9]+}', 'SensorController@showDetailData');
     $router->put('/sensor/{id:[0-9]+}', 'SensorController@update');
     $router->delete('/sensor/{id:[0-9]+}', 'SensorController@delete');
-    //channel
-    $router->post('/channel', 'ChannelController@create');
-    $router->get('/channel', 'ChannelController@showAll');
-    $router->get('/channel/{id:[0-9]+}', 'ChannelController@showDetailData');
+    //channel/feed
+    $router->post('/channel', 'FeedController@create');
 });
