@@ -5,7 +5,7 @@ use Illuminate\Http\Response;
 use App\Models\Node;
 use App\Models\User;
 use App\Models\Hardware;
-use App\Models\Sensor;
+// use App\Models\Feed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -148,46 +148,28 @@ public function create(Request $request)
         ], 201);
 }
 
-
-    public function areate(Request $request)
-    {   
-        $this->validate($request, [
-            'name' => 'required',
-            'location' => 'required'
-        ]);
-
-        $node = new Node();
-        $node->id_user = Auth::id();
-        $node->name = $request->name;
-        $node->location = $request->location;
-        
-        if($request->id_hardware == null || $request->id_hardware == ""){
-            $node = $node->save();
-            $message = "Success add new node";
-            return response()->json($message, 201);
-        }
-
-        $node->id_hardware = $request->id_hardware;
-        $findHardware = Hardware::where('id_hardware', $request->id_hardware)->pluck('type')->first();
-        if($findHardware){
-            if($findHardware == 'microcontroller unit' || $findHardware == 'single-board computer'){
-                $node = $node->save();
-                $message = "Success add new node";
-                return response()->json($message, 201);
-            }else{
-                $message = 'Hardware type not match, type should Microcontroller Unit or Single-Board Computer';
-                return response()->json($message, 400);
-            };
-        }else{
-            $message = 'Id hardware not found';
-            return response()->json($message, 404);
-        }
-    }
-
     public function showAll()
     {
         $userid = Auth::id();
         $node = Node::where('id_user', $userid)->get();
+
+        $node->transform(function ($item) {
+            $item->feed->transform(function ($feedItem) {
+                $feedItem->value = array_map(function ($value) {
+                    if (is_numeric($value)) {
+                        return strpos($value, '.') !== false ? floatval($value) : intval($value);
+                    }
+                    return $value;
+                }, explode(',', trim($feedItem->value, '{}')));
+    
+                return $feedItem;
+            });
+    
+            return $item;
+        });
+
+        return response($node);
+    }
         // $data = json_decode($node, true);
         // dd($node);
 //         $data = json_decode($node, true);
@@ -205,18 +187,36 @@ public function create(Request $request)
 //     return ($value === 'NULL') ? null : $value;
 // }, $fieldSensorArray);
         // dd($node, $fieldSensorArray);
-        return response($node);
-    }
+    
 
     public function showDetailData($id)
     {
         //query user and hardware
         $userid = Auth::id();
 
+        // $node = Node::where('id_user', $userid)
+        // ->where('id_node', $id)
+        // ->with('feed')
+        // // ->with('User','Hardware') To do: ->with('Feed')
+        // ->first();
+
         $node = Node::where('id_user', $userid)
-        ->where('id_node', $id)
-        // ->with('User','Hardware') To do: ->with('Feed')
-        ->first();
+        ->where('id_node', $id)->get();
+
+        $node->transform(function ($item) {
+            $item->feed->transform(function ($feedItem) {
+                $feedItem->value = array_map(function ($value) {
+                    if (is_numeric($value)) {
+                        return strpos($value, '.') !== false ? floatval($value) : intval($value);
+                    }
+                    return $value;
+                }, explode(',', trim($feedItem->value, '{}')));
+    
+                return $feedItem;
+            });
+    
+            return $item;
+        });
 
         $findNode = Node::where('id_node', $id)->first();
         if($findNode){
@@ -237,7 +237,7 @@ public function create(Request $request)
         //only accept headers application/x-www-form-urlencoded
         $contentType = $request->headers->get('Content-Type');
         $split = explode(';', $contentType)[0];
-        // dd($split);
+
         if($split !== "application/x-www-form-urlencoded"){
             $message = "Supported format: application/x-www-form-urlencoded";
             return response()->json($message, 415);
@@ -292,12 +292,11 @@ public function create(Request $request)
                         ], 400);
                     }
                 } catch (\Exception $e) {
-                    // dd($e);
-                    // return response()->json([
-                    //     'description' => 'Bad Request',
-                    //     'status' => 400,
-                    //     'message' => 'Missing parameter',
-                    // ], 400);
+                    return response()->json([
+                        'description' => 'Bad Request',
+                        'status' => 400,
+                        'message' => 'Missing parameter',
+                    ], 400);
                 }
         
                 try {

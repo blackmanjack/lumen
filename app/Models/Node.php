@@ -75,6 +75,18 @@ class Node extends Model
         return $fieldIdHardwareSensor;
     }
 
+    // public function getFeedAttribute($value)
+    // {
+    //     if ($value === null) {
+    //         return null;
+    //     }
+    //     dd($value);
+
+    //     $fieldSensorArray = explode(',', str_replace(['{', '}'], '', $value));
+
+    //     return $fieldSensorArray;
+    // }
+
 	public function user()
     {
         return $this->belongsTo(User::class, 'id_user');
@@ -85,8 +97,8 @@ class Node extends Model
         return $this->belongsTo(Hardware::class, 'id_hardware');
     }
 
-	// public function sensor()
-    // {
-    //     return $this->hasMany(Sensor::class, 'id_sensor');
-    // }
+	public function feed()
+    {
+        return $this->hasMany(Feed::class, 'id_node');
+    }
 }
