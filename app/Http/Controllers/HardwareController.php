@@ -62,49 +62,18 @@ class HardwareController extends Controller
 
     public function showAll()
     {
-        // $data = Hardware::select('hardware.*')
-        //         ->join('nodes', 'hardware.id', '=', 'nodes.id_hardware')
-        //         ->where('nodes.id_user', Auth::id())   
-        //         ->with('Sensor', 'Node')
-        //         ->get();
-
-        $data = Hardware::select('hardware.*')  
-                ->with('Node')
-                ->get();
-
-        // $userID = $data->toArray()['node'][0]['id_user'];
-        // $data = Hardware::
-        //         with('Node', 'Sensor')
-        //         ->first();
+        $data = Hardware::select('hardware.*')->get();
         return response($data);
     }
 
     public function showDetailData($id)
     {
-        $id_user = Auth::id();
-        $key = ['name' => 'Abigail', 
-                'state' => 'CA'];
-        $tes = json_encode($key);
-
-        // $findHardware = Node::where('id_user', $id_user)->pluck('id_hardware')->toArray();
-    
-        $data = Hardware::where('id_hardware', $id)->with('Node')->first();
+        $data = Hardware::where('id_hardware', $id)->first();
 
         if($data){
             return response()->json($data, 200);
         }
 
-        // $node = $data->toArray()['node'];
-        // if($data && $node !== []){
-        //     //cek node
-        //     $userID = $data->toArray()['node'][0]['id_user'];
-        //     if($userID === Auth::id()){
-        //         return response()->json($data, 200);
-        //     }else{
-        //         $message = 'You can\'t see another user\'s hardware';
-        //         return response()->json($message, 403);
-        //     }
-        // }
         else{
             $message = "Not found";
             return response()->json($message, 404);
