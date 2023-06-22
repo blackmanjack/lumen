@@ -33,7 +33,8 @@ $router->post('/user/forget-password', 'UserController@resetpasswd');
 // $router->group(['middleware' => 'auth.jwt'], function () use ($router) {
 $router->group(['middleware' => 'auth'], function () use ($router) {
     //admin
-    $router->get('/user', 'AdminController@showAllDataUser');
+    $router->get('/user/alluser', 'AdminController@showAllDataUser');
+    $router->get('/user/{id:[0-9]+}', 'AdminController@showDetailDataUser');
     //user
     $router->put('/user/{id:[0-9]+}', 'UserController@update');
     $router->delete('/user/{id:[0-9]+}', 'UserController@delete');

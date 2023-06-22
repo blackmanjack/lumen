@@ -1,8 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Token;
+use App\Models\User;
 
-class ExampleController extends Controller
+class AdminController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -14,21 +19,45 @@ class ExampleController extends Controller
         //
     }
 
-    public function showAllDataUser()
+    public function showAllDataUser(Request $request)
     {
-        $id = Auth::id();
-        $isAdmin = User::where('id_user', $id)->pluck('isadmin')->first();
-        if($isAdmin){
-            $data = User::with('Node.Hardware', 'Node.Sensor.Channel')->get();
-            return response()->json($data, 200);
-        }
-        else if(!$isAdmin){
-            $message = 'You are not administrator';
+        //check admin role
+        $token = explode(' ', $request->header('Authorization'));
+        $jwtToken = new Token($token[1]);
+        $decodedToken = JWTAuth::manager()->decode($jwtToken);
+    
+        // Access the token claims
+        $claims = $decodedToken->getClaims();
+        $isAdmin = $claims['isadmin']->getValue();
+
+        if(!$isAdmin){
+            $message = "You are not admin";
             return response()->json($message, 403);
         }
         else{
-            $message = "User Not found";
-            return response()->json($message, 404);
+            $data = User::all();
+            return response()->json($data, 200);
+        }
+    }
+
+    public function showDetailDataUser(Request $request, $id)
+    {
+        //check admin role
+        $token = explode(' ', $request->header('Authorization'));
+        $jwtToken = new Token($token[1]);
+        $decodedToken = JWTAuth::manager()->decode($jwtToken);
+
+        // Access the token claims
+        $claims = $decodedToken->getClaims();
+        $isAdmin = $claims['isadmin']->getValue();
+
+        if(!$isAdmin){
+            $message = "You are not admin";
+            return response()->json($message, 403);
+        }
+        else{
+            $data = User::where('id_user', $id)->first();
+            return response()->json($data, 200);
         }
     }
 }
