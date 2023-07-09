@@ -212,10 +212,10 @@ class UserController extends Controller
             $message = "Can't edit another user's account";
             return response()->json($message, 403);
         }
-        //only accept headers application/x-www-form-urlencoded
+        //only accept headers application/x-www-form-urlencoded && application/json
         $contentType = $request->headers->get('Content-Type');
         $split = explode(';', $contentType)[0];
-        if($split !== "application/x-www-form-urlencoded" || $split !== "application/json"){
+        if($split !== "application/x-www-form-urlencoded" && $split !== "application/json"){
             $message = "Content-Type ".$split." Not Support, only accept application/x-www-form-urlencoded & application/json";
             return response()->json($message, 415);
         }
