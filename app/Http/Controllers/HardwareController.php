@@ -100,10 +100,11 @@ class HardwareController extends Controller
             'description' => 'required'
         ]);
 
-        if($request->type === 'single-board computer' || $request->type === 'microcontroller unit' || $request->type === 'sensor'){
+        $typeHardware = strtolower($request->type);
+        if($typeHardware === 'single-board computer' || $typeHardware === 'microcontroller unit' || $typeHardware === 'sensor'){
             $update = $data->update([
                 'name'=> $request->name,
-                'type'=> strtolower($request->type),
+                'type'=> $typeHardware,
                 'description'=> $request->description,
             ]);
             $message = "Success edit Hardware";
@@ -126,7 +127,7 @@ class HardwareController extends Controller
             if($data->toArray()['node'] === [] && $data->toArray()['sensor'] === []){
                 $data = Hardware::find($id);
                 $data->delete();
-                $message = 'Delete hardware, id:'.$id;
+                $message = 'Succesfully delete hardware, id:'.$id;
                 return response()->json($message, 200);
             }else{
                 $message = 'Can\'t delete, hardware is still used';
