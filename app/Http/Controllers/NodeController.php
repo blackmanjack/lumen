@@ -23,131 +23,151 @@ class NodeController extends Controller
 
     public function create(Request $request)
     {   
-        $this->validate($request, [
-            'name' => 'required',
-            'location' => 'required'
-        ]);
-
-        $node = new Node();
-        $node->id_user = Auth::id();
-        $node->name = $request->name;
-        $node->location = $request->location;
-        
-        if($request->id_hardware == null || $request->id_hardware == ""){
-            $node = $node->save();
-            $message = "Success add new node";
-            return response()->json($message, 201);
-        }
-
-        $node->id_hardware = $request->id_hardware;
-        $findHardware = Hardware::where('id_hardware', $request->id_hardware)->pluck('type')->first();
-        if($findHardware){
-            if($findHardware == 'microcontroller unit' || $findHardware == 'single-board computer'){
+        try{
+            $this->validate($request, [
+                'name' => 'required|string|max:256',
+                'location' => 'required|string|max:256'
+            ]);
+    
+            $node = new Node();
+            $node->id_user = Auth::id();
+            $node->name = $request->name;
+            $node->location = $request->location;
+            
+            if($request->id_hardware == null || $request->id_hardware == ""){
                 $node = $node->save();
                 $message = "Success add new node";
                 return response()->json($message, 201);
+            }
+    
+            $node->id_hardware = $request->id_hardware;
+            $findHardware = Hardware::where('id_hardware', $request->id_hardware)->pluck('type')->first();
+            if($findHardware){
+                if($findHardware == 'microcontroller unit' || $findHardware == 'single-board computer'){
+                    $node = $node->save();
+                    $message = "Success add new node";
+                    return response()->json($message, 201);
+                }else{
+                    $message = 'Hardware type not match, type should Microcontroller Unit or Single-Board Computer';
+                    return response()->json($message, 400);
+                };
             }else{
-                $message = 'Hardware type not match, type should Microcontroller Unit or Single-Board Computer';
-                return response()->json($message, 400);
-            };
-        }else{
-            $message = 'Id hardware not found';
-            return response()->json($message, 404);
+                $message = 'Id hardware not found';
+                return response()->json($message, 404);
+            }
+        }catch (\Illuminate\Database\QueryException $exception) {
+            return response()->json(['error' => 'Server error'], 500);
         }
     }
 
     public function showAll()
     {
-        $userid = Auth::id();
-        $data = Node::where('id_user', $userid)->get();
-        return response($data);
+        try{
+            $userid = Auth::id();
+            $data = Node::where('id_user', $userid)->get();
+            return response($data);
+        }catch (\Illuminate\Database\QueryException $exception) {
+            return response()->json(['error' => 'Server error'], 500);
+        }
     }
 
     public function showDetailData($id)
     {
-        //query user and hardware
-        $userid = Auth::id();
+        try{
+            //query user and hardware
+            $userid = Auth::id();
 
-        $data = Node::where('id_user', $userid)
-        ->where('id_node', $id)
-        ->with('Hardware', 'Sensor')
-        ->first();
+            $data = Node::where('id_user', $userid)
+            ->where('id_node', $id)
+            ->with('Hardware', 'Sensor')
+            ->first();
 
-        $findNode = Node::where('id_node', $id)->first();
-        if($findNode){
-            if($data){
-                return response()->json($data, 200);
+            $findNode = Node::where('id_node', $id)->first();
+            if($findNode){
+                if($data){
+                    return response()->json($data, 200);
+                }else{
+                    $message = 'You can\'t see another user\'s node';
+                    return response()->json($message, 403);
+                }
             }else{
-                $message = 'You can\'t see another user\'s node';
-                return response()->json($message, 403);
+                $message = 'Id node not found';
+                return response()->json($message, 404);
             }
-        }else{
-            $message = 'Id node not found';
-            return response()->json($message, 404);
+        }catch (\Illuminate\Database\QueryException $exception) {
+            return response()->json(['error' => 'Invalid Input'], 400);
         }
     }
 
     public function update(Request $request, $id)
     {
-        //only accept headers application/x-www-form-urlencoded
-        $contentType = $request->headers->get('Content-Type');
-        $split = explode(';', $contentType)[0];
-        if($split !== "application/x-www-form-urlencoded"){
-            $message = "Supported format: application/x-www-form-urlencoded";
-            return response()->json($message, 415);
-        }
-        
-        $userid = Auth::id();
+        try{
+            //only accept headers application/x-www-form-urlencoded
+            $contentType = $request->headers->get('Content-Type');
+            $split = explode(';', $contentType)[0];
+            if($split !== "application/x-www-form-urlencoded"){
+                $message = "Supported format: application/x-www-form-urlencoded";
+                return response()->json($message, 415);
+            }
+            
+            $userid = Auth::id();
 
-        $this->validate($request, [
-            'name' => 'required',
-            'location' => 'required',
-        ]);
+            $this->validate($request, [
+                'name' => 'required|string|max:256',
+                'location' => 'required|string|max:256',
+            ]);
 
-        $findNode = Node::where('id_node', $id)->first();
+            $findNode = Node::where('id_node', $id)->first();
 
-        $CheckuserID = Node::where('id_node', $id)->pluck('id_user')->first();
+            $CheckuserID = Node::where('id_node', $id)->pluck('id_user')->first();
 
-        $data = Node::where('id_user', $userid)->where('id_node', $id)->first(); 
+            $data = Node::where('id_user', $userid)->where('id_node', $id)->first(); 
 
-        if($findNode){
-            if($data && $CheckuserID == $userid){
-                $update = $data->update([
-                    'name'=> $request->name,
-                    'location'=> $request->location,
-                ]);
-        
-                $message = "Success edit node";
-                return response()->json($message, 200);
+            if($findNode){
+                if($data && $CheckuserID == $userid){
+                    $update = $data->update([
+                        'name'=> $request->name,
+                        'location'=> $request->location,
+                    ]);
+            
+                    $message = "Success edit node";
+                    return response()->json($message, 200);
+                }else{
+                    $message = 'You can\'t edit another user\'s node';
+                    return response()->json($message, 403);
+                }
             }else{
-                $message = 'You can\'t edit another user\'s node';
+                $message = 'Id node not found';
                 return response()->json($message, 403);
             }
-        }else{
-            $message = 'Id node not found';
-            return response()->json($message, 403);
+        }catch (\Illuminate\Database\QueryException $exception) {
+            return response()->json(['error' => 'Invalid Input'], 400);
         }
     }
 
     public function delete($id)
     {
-        $userid = Auth::id();
+        try{
+            $userid = Auth::id();
 
-        $findNode = Node::where('id_node', $id)->first();
-        $CheckuserID = Node::where('id_node', $id)->pluck('id_user')->first();
+            $findNode = Node::where('id_node', $id)->first();
+            $CheckuserID = Node::where('id_node', $id)->pluck('id_user')->first();
 
-        if($findNode){
-            if($CheckuserID == $userid){
-                $findNode->delete();
-                $message = "Success delete node, id: $id";
-                return response()->json($message, 200);
+            if($findNode){
+                if($CheckuserID == $userid){
+                    $findNode->delete();
+                    $message = "Success delete node, id: $id";
+                    return response()->json($message, 200);
+                }else{
+                    $message = 'You can\'t delete another user\'s node';
+                    return response()->json($message, 403);
+                }
             }else{
-                $message = 'You can\'t delete another user\'s node';
-                return response()->json($message, 403);
+                $message = 'Id node not found';
+                return response()->json($message, 404);
             }
-        }else{
-            $message = 'Id node not found';
-            return response()->json($message, 404);
+        }catch (\Illuminate\Database\QueryException $exception) {
+            return response()->json(['error' => 'Invalid Input'], 400);
         }
     }
 }
