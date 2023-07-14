@@ -39,7 +39,7 @@ class SensorController extends Controller
             if($findNode){
                 //check user's node
                 if($id_user !== Auth::id()){
-                    $message = 'You can\'t use another user\'s node';
+                    $message = "You can't use another user's node";
                     return response()->json($message, 403);
                 }
                 //checking hardware
@@ -117,24 +117,29 @@ class SensorController extends Controller
                 $message = "Content-Type ".$split." Not Support, only accept application/x-www-form-urlencoded & application/json";
                 return response()->json($message, 415);
             }
-            
+
             //validation input
             $this->validate($request, [
                 'name' => 'required|string|max:256',
                 'unit' => 'required|string|max:256'
             ]);
 
-            $findSensor = Sensor::find($id);
+            $findSensor = Sensor::where('id_sensor', $id);
+
             $data = Sensor::where('id_sensor', $id)->with('Node')->first();
+
+            $userID = $data->toArray()['node']['id_user'];
             if($findSensor){
-                $userID = $data->toArray()['node']['id_user'];
                 if($userID === Auth::id()){
-                    $delete = $data->delete();
-    
-                    $message = "Success delete sensor data, id: $id";
+                    $update = $data->update([
+                        'name'=> $request->name,
+                        'unit'=> $request->unit,
+                    ]);
+
+                    $message = "Success edit Sensor";
                     return response()->json($message, 200);
                 }else{
-                    $message = 'You can\'t delete another user\'s sensor';
+                    $message = "You can't edit another user's sensor";
                     return response()->json($message, 403);
                 }
             }else{
@@ -155,7 +160,7 @@ class SensorController extends Controller
                     $message = "Success delete sensor data, id: $id";
                     return response()->json($message, 200);
                 }else{
-                    $message = 'You can\'t delete another user\'s sensor';
+                    $message = "You can't delete another user's sensor";
                     return response()->json($message, 403);
                 }
             }else{
