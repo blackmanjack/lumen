@@ -23,7 +23,6 @@ class NodeController extends Controller
 
     public function create(Request $request)
     {   
-        try{
             $this->validate($request, [
                 'name' => 'required|string|max:256',
                 'location' => 'required|string|max:256'
@@ -55,25 +54,17 @@ class NodeController extends Controller
                 $message = 'Id hardware not found';
                 return response()->json($message, 404);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Server error'], 500);
-        }
     }
 
     public function showAll()
     {
-        try{
             $userid = Auth::id();
             $data = Node::where('id_user', $userid)->get();
             return response($data);
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Server error'], 500);
-        }
     }
 
     public function showDetailData($id)
     {
-        try{
             //query user and hardware
             $userid = Auth::id();
 
@@ -94,14 +85,10 @@ class NodeController extends Controller
                 $message = 'Id node not found';
                 return response()->json($message, 404);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
     }
 
     public function update(Request $request, $id)
     {
-        try{
             //only accept headers application/x-www-form-urlencoded
             $contentType = $request->headers->get('Content-Type');
             $split = explode(';', $contentType)[0];
@@ -140,14 +127,10 @@ class NodeController extends Controller
                 $message = 'Id node not found';
                 return response()->json($message, 403);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
     }
 
     public function delete($id)
     {
-        try{
             $userid = Auth::id();
 
             $findNode = Node::where('id_node', $id)->first();
@@ -166,8 +149,5 @@ class NodeController extends Controller
                 $message = 'Id node not found';
                 return response()->json($message, 404);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
     }
 }

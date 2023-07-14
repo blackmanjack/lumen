@@ -23,7 +23,6 @@ class HardwareController extends Controller
 
     public function create(Request $request)
     {
-        try{
             //check input field is empty
             $this->validate($request, [
                 'name' => 'required|string|max:256',
@@ -46,26 +45,18 @@ class HardwareController extends Controller
                 $message = "Type must Single-Board Computer, Microcontroller Unit, or Sensor";
                 return response()->json($message, 400);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Server error'], 500);
-        }
     }
 
     public function showAll()
     {
-        try{
             $data = Hardware::select('hardware.*')  
                 ->with('Sensor','Node')
                 ->get();
             return response($data);
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Server error'], 500);
-        }
     }
 
     public function showDetailData($id)
     {
-        try{
             $id_user = Auth::id();
     
             $data = Hardware::where('id_hardware', $id)->with('Node', 'Sensor')->first();
@@ -76,14 +67,10 @@ class HardwareController extends Controller
                 $message = "Not found";
                 return response()->json($message, 404);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
     }
 
     public function update(Request $request, $id)
     {
-        try{
             $data = Hardware::where('id_hardware', $id)->first();
             if($data == null){
                 $message = "Hardware Not Found";
@@ -116,14 +103,10 @@ class HardwareController extends Controller
                 $message = "Type must Single-Board Computer, Microcontroller Unit, or Sensor";
                 return response()->json($message, 400);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
     }
 
     public function delete($id)
     {
-        try{
             $data = Hardware::where('id_hardware', $id)
             ->with('Node', 'Sensor')
             ->first();
@@ -144,8 +127,5 @@ class HardwareController extends Controller
                 $message = 'Id hardware not found';
                 return response()->json($message, 404);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
     }
 }

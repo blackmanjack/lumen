@@ -31,7 +31,6 @@ class UserController extends Controller
 
     public function create(Request $request)
     {
-        try{
             $this->validate($request, [
                 'username' => 'required|unique:user_person',
                 'email' => 'required|email|unique:user_person',
@@ -90,14 +89,10 @@ class UserController extends Controller
                 $message = "Parameter is Invalid";
                 return response()->json($message, 400);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Server error'], 500);
-        }
     }
 
     public function activate(Request $request)
     {
-        try{
             $token = $request->token;
             $findObj = DB::table('user_person')->where('token', $token)
                                         ->pluck('token')
@@ -124,14 +119,10 @@ class UserController extends Controller
                 ]);
                 return response()->json($res, 404);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Server error'], 500);
-        }
     }
 
     public function login(Request $request)
     {
-        try{
             $this->validate($request, [
                 'username' => 'required',
                 'password' => 'required'
@@ -183,16 +174,11 @@ class UserController extends Controller
                     'message'=> 'User Not Found, Wrong Username',
                 ]);
                 return response()->json($res, 404);
-            }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
-    
+            }    
     }
 
     public function resetpasswd(Request $request)
     {
-        try{
             $this->validate($request, [
                 'username' => 'required',
                 'email' => 'required|email'
@@ -236,16 +222,10 @@ class UserController extends Controller
                 $message = "Empty body request";
                 return response()->json($message, 400);
             }
-        }catch(\Illuminate\Database\QueryException $exception){
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
-        
-
     }
 
     public function update(Request $request, $id)
     {
-        try{
             $userid = Auth::id();
             if(intval($id) !== $userid){
                 $message = "Can't edit another user's account";
@@ -285,14 +265,10 @@ class UserController extends Controller
                 $message = "Old password is Invalid";
                 return response()->json($message, 400);
             }
-        }catch(\Illuminate\Database\QueryException $exception){
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
     }
 
     public function delete($id)
     {
-        try{
             $userid = Auth::id();
             if($id !== $userid){
                 $message = "Can\'t delete another user\'s account";
@@ -310,10 +286,6 @@ class UserController extends Controller
                 $message = "Parameter is Invalid";
                 return response()->json($message, 404);
             }
-        }
-        catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
     }
     
 }

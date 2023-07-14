@@ -22,7 +22,6 @@ class SensorController extends Controller
 
     public function create(Request $request)
     {
-        try{
             $this->validate($request, [
                 'id_node' => 'required|integer',
                 'name' => 'required|string|max:256',
@@ -73,28 +72,19 @@ class SensorController extends Controller
                 $message = 'Id node not found';
                 return response()->json($message, 404);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Server error'], 500);
-        }
-        
     }
 
     public function showAll()
     {
-        try{
             $data = Sensor::whereHas('node', function ($query) {
                     $query->where('id_user', Auth::id());
                     })   
                     ->get();
             return response($data);
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Server error'], 500);
-        }
     }
 
     public function showDetailData($id)
     {
-        try{
             //query node, hardware, channel 
             $findSensor = Sensor::where('id_sensor', $id)->first();
             if($findSensor){
@@ -116,15 +106,10 @@ class SensorController extends Controller
                 $message = 'Id sensor not found';
                 return response()->json($message, 404);
             }
-        }catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
-        
     }
 
     public function update(Request $request, $id)
     {
-        try {
             //only accept headers application/x-www-form-urlencoded
             $contentType = $request->headers->get('Content-Type');
             $split = explode(';', $contentType)[0];
@@ -156,14 +141,10 @@ class SensorController extends Controller
                 $message = 'Id sensor not found';
                 return response()->json($message, 404);
             }
-        } catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
     }
 
     public function delete($id)
     {
-        try{
             $findSensor = Sensor::find($id);
             $data = Sensor::where('id_sensor', $id)->with('Node')->first();
             if($findSensor){
@@ -181,9 +162,5 @@ class SensorController extends Controller
                 $message = 'Id sensor not found';
                 return response()->json($message, 404);
             }
-        }
-        catch (\Illuminate\Database\QueryException $exception) {
-            return response()->json(['error' => 'Invalid Input'], 400);
-        }
     }
 }
