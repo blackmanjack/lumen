@@ -25,9 +25,9 @@ class HardwareController extends Controller
     {
             //check input field is empty
             $this->validate($request, [
-                'name' => 'required|string|max:256',
-                'type' => 'required|string|max:256',
-                'description' => 'required|string|max:256'
+                'name' => 'required|string|max:50',
+                'type' => 'required|string|max:50',
+                'description' => 'required|string|max:50'
             ]);
 
             $userId = Auth::id();
@@ -86,9 +86,9 @@ class HardwareController extends Controller
     
             //check input field is empty
             $this->validate($request, [
-                'name' => 'required|string|max:256',
-                'type' => 'required|string|max:256',
-                'description' => 'required|string|max:256'
+                'name' => 'required|string|max:50',
+                'type' => 'required|string|max:50',
+                'description' => 'required|string|max:50'
             ]);
     
             if($request->type === 'single-board computer' || $request->type === 'microcontroller unit' || $request->type === 'sensor'){

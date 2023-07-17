@@ -34,7 +34,7 @@ class UserController extends Controller
             $this->validate($request, [
                 'username' => 'required|unique:user_person',
                 'email' => 'required|email|unique:user_person',
-                'password' => 'required|min:8|max:256'
+                'password' => 'required|min:8|max:50'
             ],
             [   
                 'username.required' => 'Parameter username mustn\'t empty',
@@ -241,8 +241,8 @@ class UserController extends Controller
             }
 
             $this->validate($request, [
-                'oldpassword' => 'required|max:256',
-                'newpassword' => 'required|min:8|max:256'
+                'oldpassword' => 'required|max:50',
+                'newpassword' => 'required|min:8|max:50'
             ]);
 
             $oldpasswd = $request->oldpassword;

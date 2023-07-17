@@ -24,8 +24,8 @@ class SensorController extends Controller
     {
             $this->validate($request, [
                 'id_node' => 'required|integer',
-                'name' => 'required|string|max:256',
-                'unit' => 'required|string|max:256'
+                'name' => 'required|string|max:50',
+                'unit' => 'required|string|max:50'
             ]);
     
             $data = new Sensor();
@@ -120,8 +120,8 @@ class SensorController extends Controller
 
             //validation input
             $this->validate($request, [
-                'name' => 'required|string|max:256',
-                'unit' => 'required|string|max:256'
+                'name' => 'required|string|max:50',
+                'unit' => 'required|string|max:50'
             ]);
 
             $findSensor = Sensor::where('id_sensor', $id);
