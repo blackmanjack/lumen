@@ -24,8 +24,8 @@ class NodeController extends Controller
     public function create(Request $request)
     {   
         $this->validate($request, [
-            'name' => 'required',
-            'location' => 'required'
+            'name' => 'required|string|max:50',
+            'location' => 'required|string|max:50'
         ]);
 
         $node = new Node();
@@ -100,8 +100,8 @@ class NodeController extends Controller
         $userid = Auth::id();
 
         $this->validate($request, [
-            'name' => 'required',
-            'location' => 'required',
+            'name' => 'required|string|max:50',
+            'location' => 'required|string|max:50',
         ]);
 
         $findNode = Node::where('id_node', $id)->first();
