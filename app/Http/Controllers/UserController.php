@@ -34,7 +34,7 @@ class UserController extends Controller
         $this->validate($request, [
             'username' => 'required|unique:user_person',
             'email' => 'required|email|unique:user_person',
-            'password' => 'required|min:8'
+            'password' => 'required|min:8|max:20'
         ],
         [   
             'username.required' => 'Parameter username mustn\'t empty',
@@ -57,8 +57,17 @@ class UserController extends Controller
         }
         $save = $data->save();
 
+        $appUrl = env('APP_URL');
+        $appPort = env('APP_PORT');
         $token = $data->token;
-        $url = env('APP_URL') . ':' . env('APP_PORT') . '/user/activation?token=' . $token;
+
+        $url = $appUrl;
+
+        if (!empty($appPort)) {
+            $url .= ':' . $appPort;
+        }
+        
+        $url .= '/user/activation?token=' . $token;
 
         if($save){
             $res = ([
@@ -85,7 +94,6 @@ class UserController extends Controller
     public function activate(Request $request)
     {
         $token = $request->token;
-        // $token = Str::random(32);
         $findObj = DB::table('user_person')->where('token', $token)
                                     ->pluck('token')
                                     ->first();
@@ -158,17 +166,16 @@ class UserController extends Controller
     {
         $this->validate($request, [
             'username' => 'required',
-            'email' => 'required'
+            'email' => 'required|email'
         ]);
         $username = $request->username;
         $email = $request->email;
 
         $emailFind = User::where('email', $email)->first();
-        // dd(emailFind);
+
         $userFind = User::where('email', $email)->pluck('username')->first();
 
 
-        // $passwdCheck = DB::table('user_person')->where('id', $id)->pluck('password')->first();
         if($username !== '' || $email !== ''){
             if($username === $userFind){
                 //update random passwd and send to email's user
@@ -220,8 +227,8 @@ class UserController extends Controller
             return response()->json($message, 415);
         }
         $this->validate($request, [
-            'oldpassword' => 'required',
-            'newpassword' => 'required|min:8'
+            'oldpassword' => 'required|max:50',
+            'newpassword' => 'required|min:8|max:50'
         ]);
 
         $oldpasswd = $request->oldpassword;
