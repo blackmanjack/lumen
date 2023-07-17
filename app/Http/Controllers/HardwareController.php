@@ -31,12 +31,6 @@ class HardwareController extends Controller
         ]);
 
         $userId = Auth::id();
-        // $isAdmin = User::where('id_user', $userId)->pluck('isadmin')->first();
-
-        // if(!$isAdmin){
-        //     $message = "You're not admin";
-        //     return response()->json($message, 401);
-        // }
         
         $data = new Hardware();
         $data->name = $request->name;
@@ -95,9 +89,9 @@ class HardwareController extends Controller
 
         //check input field is empty
         $this->validate($request, [
-            'name' => 'required',
-            'type' => 'required',
-            'description' => 'required'
+            'name' => 'required|string|max:50',
+            'type' => 'required|string|max:50',
+            'description' => 'required|string|max:50'
         ]);
 
         $typeHardware = strtolower($request->type);
