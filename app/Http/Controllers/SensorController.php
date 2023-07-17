@@ -76,10 +76,10 @@ class SensorController extends Controller
 
     public function showAll()
     {
-        $data = Sensor::select('sensor.*')->leftJoin('node', 'node.id_node', '=', 'sensor.id_node')
-                ->where('node.id_user', Auth::id())
-                ->with('Node')    
-                ->get();
+        $data = Sensor::whereHas('node', function ($query) {
+            $query->where('id_user', Auth::id());
+            })   
+            ->get();
         return response($data);
     }
 
@@ -88,25 +88,31 @@ class SensorController extends Controller
         //query node, hardware, channel 
         $findSensor = Sensor::where('id_sensor', $id)->first();
 
-        //$data = Sensor::where('id_sensor', $id)->with('Node', 'Channel')->first();
-        //add You can\'t see another user\'s sensor
-        if($findSensor){
-            $data = Sensor::select('sensor.*')->where('id_sensor', $id)->leftJoin('node', 'node.id_node', '=', 'sensor.id_node')
-            ->where('node.id_user', Auth::id())
-            ->with('Node')    
-            ->get();
-            
-        return response()->json($data, 200);
+        $findSensor = Sensor::where('id_sensor', $id)->first();
+            if($findSensor){
+                $data = Sensor::with('channel')
+                ->whereHas('node', function ($query) {
+                    $query->where('id_user', Auth::id());
+                })
+                ->find($id);
 
-        }else {
-            $message = 'Id sensor not found';
-            return response()->json($message, 404);
-        }
+                //user validation
+                if (!$data) {
+                    $message = "You can't see another user's sensor";
+                    return response()->json($message, 403);
+                }
+                
+            return response()->json($data, 200);
+
+            }else {
+                $message = 'Id sensor not found';
+                return response()->json($message, 404);
+            }
     }
 
     public function update(Request $request, $id)
     {
-        //only accept headers application/x-www-form-urlencoded
+        //only accept headers application/x-www-form-urlencoded & application/json
         $contentType = $request->headers->get('Content-Type');
         $split = explode(';', $contentType)[0];
         if($split !== "application/x-www-form-urlencoded" && $split !== "application/json"){
@@ -116,8 +122,8 @@ class SensorController extends Controller
 
         //validation input
         $this->validate($request, [
-            'name' => 'required',
-            'unit' => 'required'
+            'name' => 'required|string|max:50',
+            'unit' => 'required|string|max:50'
         ]);
 
         $findSensor = Sensor::where('id_sensor', $id);
