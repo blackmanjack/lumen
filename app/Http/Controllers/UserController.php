@@ -137,6 +137,7 @@ class UserController extends Controller
             $password = $request->input('password');
     
             $user = User::where('username', $username)->first();
+            
             $hashpasswd = DB::table('user_person')->where('username', $username)
                                             ->pluck('password')
                                             ->first();
@@ -144,6 +145,7 @@ class UserController extends Controller
                                             ->pluck('status')
                                             ->first();
             $isValidPassword = hash('sha256', $password) === $hashpasswd;
+            dd($isValidPassword);
     
             if($user){
                 if($statusCheck && $isValidPassword){
@@ -151,7 +153,7 @@ class UserController extends Controller
                         'message'=> 'Login Succesfullly',
                     ]);
                     return response()->json($res, 200);
-                }else if(!$passwdCheck){
+                }else if(!$isValidPassword){
                     $res = ([
                         'message'=> 'Wrong Password',
                     ]);

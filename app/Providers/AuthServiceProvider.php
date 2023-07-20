@@ -40,7 +40,6 @@ class AuthServiceProvider extends ServiceProvider
 
                     return User::where('username', $username)
                     ->where('password', $password)
-                    ->where('status', true)
                     ->first();
                 }
                 return;
