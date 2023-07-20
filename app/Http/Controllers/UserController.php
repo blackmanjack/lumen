@@ -145,7 +145,7 @@ class UserController extends Controller
                                             ->pluck('status')
                                             ->first();
             $isValidPassword = hash('sha256', $password) === $hashpasswd;
-            dd($isValidPassword);
+            dd($isValidPassword, $hashpasswd, hash('sha256', $password), gettype($hashpasswd), gettype(hash('sha256', $password)));
     
             if($user){
                 if($statusCheck && $isValidPassword){
