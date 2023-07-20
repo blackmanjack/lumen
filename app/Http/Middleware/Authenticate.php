@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Models\User;
 use Illuminate\Contracts\Auth\Factory as Auth;
 
 class Authenticate
@@ -35,6 +36,22 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
+        if ($request->header('Authorization')) {
+            $token = explode(' ', $request->header('Authorization'));
+            if($token[0] === 'Basic'){
+                $split = explode(':',base64_decode($token[1]));
+                // Get the username from the request (adjust this based on your request data)
+                $username = $split[0];
+                // Perform the status check
+                $statusCheck = User::where('username', $username)->value('status');
+
+                if ($statusCheck === false) {
+                    $message = "Your account is inactive. Check your email for activation";
+                    return response()->json(['error' => $message], 403);
+                }
+            }
+        }
+
         if ($this->auth->guard($guard)->guest()) {
             return response('Unauthorized.', 401);
         }
