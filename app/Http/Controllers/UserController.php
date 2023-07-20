@@ -45,12 +45,14 @@ class UserController extends Controller
     
             $data = new User();
             $data->username = $request->username;
-            $data->password = Hash::make($request->password);
+            $data->password = hash('sha256', $request->password);
             $data->email = $request->email;
+            
             $username = $data->username;
             $password = $request->password;
-            $data->token = base64_encode($username.':'.$password);
-    
+            $email = $data->email;
+            $data->token = base64_encode($username.$email.$password);
+            
             if($data->email === '' || $data->password === '' || $data->username === ''){
                 $message = 'Parameter mustn\'t empty';
                 return response()->json($message, 400);
@@ -72,7 +74,6 @@ class UserController extends Controller
             if($save){
                 $res = ([
                     'message'=> 'Success sign up, check email for verification',
-                    'data'=> $data
                 ]);
                 $mailData = [
                     'id_user' => $data->id_user,
@@ -142,20 +143,12 @@ class UserController extends Controller
             $statusCheck = DB::table('user_person')->where('username', $username)
                                             ->pluck('status')
                                             ->first();
-            $passwdCheck = Hash::check($password, $hashpasswd);
+            $isValidPassword = hash('sha256', $password) === $hashpasswd;
     
             if($user){
-                if($statusCheck && $passwdCheck){
-                    $update = DB::table('user_person')->select('*')
-                                                ->where('username', $username)
-                                                // ->update(['token' => base64_encode(Str::random(32))]);
-                                                ->update(['token' => base64_encode($username.':'.$password)]);
-                    $user1 = User::where('username', $username)->first();
-                    $api_token = User::where('username', $username)->pluck('token')->first();
+                if($statusCheck && $isValidPassword){
                     $res = ([
                         'message'=> 'Login Succesfullly',
-                        'data' => $user1,
-                        'api_token' => $api_token,
                     ]);
                     return response()->json($res, 200);
                 }else if(!$passwdCheck){
@@ -193,14 +186,12 @@ class UserController extends Controller
                 if($username === $userFind){
                     //update random passwd and send to email's user
                     $newpasswd = Str::random(10);
-                    $emailFind->password = Hash::make($newpasswd);
-                    $emailFind->token = base64_encode($username.':'.$newpasswd);
+                    $emailFind->password = hash('sha256', $newpasswd);
                     
                     $update = $emailFind->save();
     
                     $res = ([
                         'message'=> "New password request sent. Check email for new password",
-                        'data' => $emailFind,
                     ]);
                     
                     $mailData = [
@@ -245,17 +236,16 @@ class UserController extends Controller
                 'newpassword' => 'required|min:8|max:50'
             ]);
 
-            $oldpasswd = $request->oldpassword;
+            $oldpasswd = hash('sha256', $request->oldpassword);
             $newpasswd = $request->newpassword;
 
             $data = User::where('id_user', $userid)->first();
             $username = DB::table('user_person')->where('id_user', $userid)->pluck('username')->first();
             $hashpasswd = DB::table('user_person')->where('id_user', $userid)->pluck('password')->first();
-            $passwdCheck = Hash::check($oldpasswd, $hashpasswd);
+            $isValidPassword = $oldpasswd === $hashpasswd;
             
-            if($passwdCheck){
-                $data->password = Hash::make($newpasswd);
-                $data->token = base64_encode($username.':'.$newpasswd);
+            if($isValidPassword){
+                $data->password = hash('sha256', $newpasswd);
                 $update = $data->save();
 
                 $res = ([
