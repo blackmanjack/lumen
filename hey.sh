@@ -1,23 +1,28 @@
 #!/bin/bash
+
 HOST=10.126.0.2
-PORT=8000
-TEST_TIME=10s
+PORT=8080
+TEST_TIME=60s
 SLEEP_TIME=10
-ITERATION=2
-CONCURENCY=(200)
-AUTH_METHOD=basic
+ITERATION=5
+CONCURENCY=(200 400 600 800 1000)
+AUTH_METHOD=basic # basic / jwt
 USERNAME=perftest
 PASSWORD=perftest
+
 init_db() {
   PGPASSWORD=postgres psql -h $HOST -U postgres lumen < dump-sql.sql
 }
+
 drop_table_db() {
   PGPASSWORD=postgres psql -h $HOST -U postgres lumen -c "DROP TABLE user_person, hardware, node, sensor, channel;"
 }
+
 rollback_db() {
-  drop_table_db  
+  drop_table_db
   init_db
 }
+
 perftest() {
   local method=$1
   local endpoint=$2
@@ -27,16 +32,16 @@ perftest() {
   do
     for i in $(seq 1 $ITERATION)
     do
-      echo "[ $method $endpoint $concurrent][$i]"
-      if [ $method == "GET" ] 
+      echo "[$method $endpoint $concurrent][$i]"
+      if [ $method == "DELETE" ]
       then
-        siege -t$TEST_TIME -c$concurrent $HOST:$PORT$endpoint --header="$HEADER"
-      # elif [ $method == "DELETE" ]
-      # then
-      #   siege -X DELETE -t$TEST_TIME -c$concurrent $HOST:$PORT$endpoint --header="$HEADER"
+        hey -m $method -n $concurrent -z $TEST_TIME -H "$HEADER" http://$HOST:$PORT$endpoint
+      elif [ $method == "GET" ]
+      then
+        hey -n $concurrent -z $TEST_TIME -H "$HEADER" http://$HOST:$PORT$endpoint
       elif [ $method == "PUT" ] || [ $method == "POST" ]
       then
-        siege -t$TEST_TIME -c$concurrent "$HOST:$PORT$endpoint $method $data" --header="$HEADER" --content-type "application/json"
+        hey -m $method -T "appliaction/json" -d "$data" -n $concurrent -z $TEST_TIME -H "$HEADER" http://$HOST:$PORT$endpoint
       fi
       sleep $SLEEP_TIME
       if $do_rollback
@@ -46,6 +51,7 @@ perftest() {
     done
   done
 }
+
 auth() {
   if [ $AUTH_METHOD == "jwt" ]
   then
@@ -55,12 +61,14 @@ auth() {
     HEADER="Authorization: Basic $(echo -n $USERNAME:$PASSWORD | base64)"
   fi
 }
-rollback_db
+
+
+rollback_db > /dev/null
 auth
-echo $HEADER
+
 ## perftest METHOD ENDPOINT DATA DO_ROLLBACK
+# perftest "GET" "/node" "" false
 # perftest "POST" "/channel" "{\"value\": 1.33, \"id_sensor\": 1}" true
-perftest "GET" "/node" "" false
 # perftest "GET" "/node/1" ""  false
 # perftest "PUT" "/node/1" "{ \"name\":\"test\",\"location\":\"test\",\"id_hardware\":1 }" true
-# perftest "DELETE" "/node/1" "" true
+perftest "DELETE" "/node/1" "" true
