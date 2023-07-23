@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 
 class UserController extends Controller
@@ -49,7 +50,16 @@ class UserController extends Controller
         $data->email = $request->email;
         $username = $data->username;
         $password = $request->password;
-        $data->token = base64_encode($username.$email.$password);
+        $email = $request->email;
+
+        $payload = [
+            "username" => $data["username"],
+            "id_user" => $data["id_user"],
+            "isadmin" => 0
+        ];
+        $token = JWTAuth::customClaims($payload)->fromUser($data);
+
+        $data->token = $token;
 
         if($data->email === '' || $data->password === '' || $data->username === ''){
             $message = 'Parameter mustn\'t empty';
@@ -59,7 +69,6 @@ class UserController extends Controller
 
         $appUrl = env('APP_URL');
         $appPort = env('APP_PORT');
-        $token = $data->token;
 
         $url = $appUrl;
 
@@ -93,17 +102,24 @@ class UserController extends Controller
     public function activate(Request $request)
     {
         $token = $request->token;
-        $findObj = DB::table('user_person')->where('token', $token)
-                                    ->pluck('token')
+        $jwtToken = new Token($token);
+        $decodedToken = JWTAuth::manager()->decode($jwtToken);
+    
+        // Access the token claims
+        $claims = $decodedToken->getClaims();
+        $username = $claims['username']->getValue();
+
+        $findObj = DB::table('user_person')->where('username', $username)
+                                    ->pluck('username')
                                     ->first();
 
         if($findObj) {
-            $statusCheck = DB::table('user_person')->where('token', $token)
+            $statusCheck = DB::table('user_person')->where('username', $username)
                                             ->pluck('status')
                                             ->first();
             if($statusCheck === false){
                 $update = DB::table('user_person')->select('*')
-                                            ->where('token', $token)
+                                            ->where('username', $username)
                                             ->update(['status' => 1]);
                 
                 $message = 'Your account has been activated';
@@ -138,7 +154,13 @@ class UserController extends Controller
                                         ->pluck('status')
                                         ->first();
 
-        if (!$token = Auth::attempt($credentials)) {
+        $hashpasswd = hash('sha256', $credentials["password"]);
+
+        $userCheck = User::where('username', $credentials["username"])
+                    ->where('password', $hashpasswd)
+                    ->first();
+                                                    
+        if (!$userCheck) {
             $res = ([
                 'message'=> 'Username or password doesn\'t match our credentials!',
             ]);
@@ -151,10 +173,20 @@ class UserController extends Controller
             ]);
             return response()->json($res, 400);
         } else {
-            $user1 = User::where('username', $credentials["username"])->first();
+            $user = User::where('username', $credentials["username"])->first();
+            $isAdmin = User::where('username', $credentials["username"])
+                                        ->pluck('isadmin')
+                                        ->first();
+            $payload = [
+                "username" => $user["username"],
+                "id_user" => $user["id_user"],
+                "isadmin" => $isAdmin
+            ];
+            
+            $newtoken = JWTAuth::customClaims($payload)->fromUser($user);
             $res = ([
                 'message'=> 'Login Succesfullly',
-                'token' => $token,
+                'token' => $newtoken,
             ]);
             return response()->json($res, 200);
         }
