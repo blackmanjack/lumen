@@ -70,7 +70,7 @@ class NodeController extends Controller
 
         $data = Node::where('id_user', $userid)
         ->where('id_node', $id)
-        ->with('User','Hardware')
+        ->with('Hardware', 'Sensor')
         ->first();
 
         $findNode = Node::where('id_node', $id)->first();
