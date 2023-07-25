@@ -47,7 +47,7 @@ class UserController extends Controller
 
         $data = new User();
         $data->username = $request->username;
-        $data->password = Hash::make($request->password);
+        $data->password = hash('sha256',$request->password);
         $data->email = $request->email;
         $username = $data->username;
         $password = $request->password;
@@ -146,7 +146,13 @@ class UserController extends Controller
                                         ->pluck('status')
                                         ->first();
 
-        if (!$token = Auth::attempt($credentials)) {
+        $hashpasswd = hash('sha256', $credentials["password"]);
+
+        $userCheck = User::where('username', $credentials["username"])
+                    ->where('password', $hashpasswd)
+                    ->first();
+                                                    
+        if (!$userCheck) {
             $res = ([
                 'message'=> 'Username or password doesn\'t match our credentials!',
             ]);
@@ -173,7 +179,6 @@ class UserController extends Controller
             $newtoken = JWTAuth::customClaims($payload)->fromUser($user);
             $res = ([
                 'message'=> 'Login Succesfullly',
-                'data' => $user,
                 'token' => $newtoken,
             ]);
             return response()->json($res, 200);
@@ -193,12 +198,11 @@ class UserController extends Controller
 
         $userFind = User::where('email', $email)->pluck('username')->first();
 
-        // $passwdCheck = DB::table('user_person')->where('id', $id)->pluck('password')->first();
         if($username !== '' || $email !== ''){
             if($username === $userFind){
                 //update random passwd and send to email's user
                 $newpasswd = Str::random(10);
-                $emailFind->password = Hash::make($newpasswd);
+                $emailFind->password = hash('sha256',$newpasswd);
                 
                 $update = $emailFind->save();
 
@@ -240,7 +244,7 @@ class UserController extends Controller
         //only accept headers application/x-www-form-urlencoded & application/json
         $contentType = $request->headers->get('Content-Type');
         $split = explode(';', $contentType)[0];
-        if($split !== "application/x-www-form-urlencoded" || $split !== "application/json"){
+        if($split !== "application/x-www-form-urlencoded" && $split !== "application/json"){
             $message = "Content-Type ".$split." Not Support, only accept application/x-www-form-urlencoded & application/json";
             return response()->json($message, 415);
         }
@@ -256,10 +260,10 @@ class UserController extends Controller
         $data = User::where('id_user', $userid)->first();
         $username = DB::table('user_person')->where('id_user', $userid)->pluck('username')->first();
         $hashpasswd = DB::table('user_person')->where('id_user', $userid)->pluck('password')->first();
-        $passwdCheck = Hash::check($oldpasswd, $hashpasswd);
+        $isValidPassword = hash('sha256',$oldpasswd) === $hashpasswd;
         
-        if($passwdCheck){
-            $data->password = Hash::make($newpasswd);
+        if($isValidPassword){
+            $data->password = hash('sha256',$newpasswd);
 
             $update = $data->save();
 
