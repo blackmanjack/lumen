@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'username' => 'admin',
             'email' => 'lumenpostgresql@gmail.com',
-            'password' => Hash::make('adminLumen22'),
+            'password' => hash('sha256','adminLumen22'),
             'isadmin' => true,
             'status' => true,   
         ]);
