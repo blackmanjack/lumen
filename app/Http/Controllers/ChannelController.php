@@ -27,17 +27,36 @@ class ChannelController extends Controller
             'value' => 'required',
             'id_sensor' => 'required',
         ]);
+
+        $idSensor = $request->id_sensor;
         
-        $findSensor = Sensor::where('id_sensor', $request->id_sensor)->first();
+        $findSensor = Sensor::where('id_sensor', $idSensor)->first();
 
         if($findSensor){
-            DB::table('channel')->insert([
-                'value' => $request->value,
-                'id_sensor' => $request->id_sensor,
-                'time' => Carbon::now()
-            ]);
-            $message = "Success add new Channel";
-            return response()->json($message, 201);
+            $rows = DB::table('node')
+                    ->leftJoin('sensor', 'sensor.id_node', '=', 'node.id_node')
+                    ->where('sensor.id_sensor', $idSensor)
+                    ->select('node.id_user')
+                    ->get();
+            
+                    if (count($rows) > 0) {
+                        $iduser = $rows[0]->id_user;
+
+                        if (Auth::id() == $iduser) {
+                            DB::table('channel')->insert([
+                                'value' => $request->value,
+                                'id_sensor' => $request->id_sensor,
+                                'time' => Carbon::now()
+                            ]);
+                            $message = "Success add new Channel";
+                            return response()->json($message, 201);
+                        } else {
+                            return response()->json(["description" => "Forbidden", "status" => 403, "message" => "You can't send channel to another user's sensor"], 403);
+                        }
+                    } else {
+                        return response()->json(["description" => "Bad Request", "status" => 400, "message" => "Id sensor not found"], 400);
+                    }
+
         }else{
             $message = "Sensor Not Found";
             return response()->json($message, 404);
