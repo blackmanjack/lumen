@@ -8,6 +8,8 @@ use App\Models\Hardware;
 use App\Models\Sensor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Carbon;
 
 class NodeController extends Controller
 {
@@ -58,33 +60,60 @@ class NodeController extends Controller
 
     public function showAll()
     {
-        $userid = Auth::id();
-        $data = Node::where('id_user', $userid)->get();
+        // Check if the data is already cached
+        $cacheKey = 'showAll:' . Auth::id();
+        if (Cache::has($cacheKey)) {
+            $data = Cache::get($cacheKey);
+        } else {
+            // Data is not cached, perform the database query
+            $userid = Auth::id();
+            $data = Node::where('id_user', $userid)->get();
+
+            // Cache the result for future use (you can set an appropriate cache duration)
+            Cache::put($cacheKey, $data, Carbon::now()->addMinutes(30)); // Cache for 30 minutes (adjust as needed)
+        }
+
         return response($data);
     }
 
     public function showDetailData($id)
     {
-        //query user and hardware
+        // Query user and hardware
         $userid = Auth::id();
+    
+        // Define a unique cache key based on the user ID and node ID
+        $cacheKey = 'showDetailData:' . $userid . ':' . $id;
+    
+        // Check if the data is already cached
+        if (Cache::has($cacheKey)) {
+            $data = Cache::get($cacheKey);
+        } else {
+            // Data is not cached, perform the database query
+            $data = Node::where('id_user', $userid)
+                ->where('id_node', $id)
+                ->with('Hardware', 'Sensor')
+                ->first();
 
-        $data = Node::where('id_user', $userid)
-        ->where('id_node', $id)
-        ->with('Hardware', 'Sensor')
-        ->first();
-
+                $cacheExpiration = Carbon::now()->addMinutes(30);
+    
+            // Cache the result for future use (you can set an appropriate cache duration)
+            Cache::put($cacheKey, $data, $cacheExpiration); // Cache for 30 minutes (adjust as needed)
+        }
+    
+        // Check if the node is found
         $findNode = Node::where('id_node', $id)->first();
-        if($findNode){
-            if($data){
-                return response()->json($data, 200);
-            }else{
-                $message = 'You can\'t see another user\'s node';
-                return response()->json($message, 403);
-            }
-        }else{
+        if (!$findNode) {
             $message = 'Id node not found';
             return response()->json($message, 404);
         }
+    
+        // Check if the user is authorized to see the node's data
+        if (!$data) {
+            $message = 'You can\'t see another user\'s node';
+            return response()->json($message, 403);
+        }
+    
+        return response()->json($data, 200);
     }
 
     public function update(Request $request, $id)
