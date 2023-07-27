@@ -28,6 +28,6 @@ class Sensor extends Model
 
 	public function channel()
     {
-        return $this->hasMany(Channel::class);
+        return $this->hasMany(Channel::class, 'id_sensor');
     }
 }
