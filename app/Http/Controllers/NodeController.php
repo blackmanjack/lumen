@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Carbon;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class NodeController extends Controller
 {
@@ -58,15 +59,25 @@ class NodeController extends Controller
         }
     }
 
-    public function showAll()
+    public function showAll(Request $request)
     {
+
+        $userid = $request->user()["id_user"];
+        // // Get the JWT token from the request (e.g., Authorization header)
+        // $token = JWTAuth::parseToken();
+
+        // // Access the decoded payload data from the token
+        // $payload = $token->getPayload();
+
+        // // Get the user ID from the payload
+        // $userid = $payload->get('sub');
+
         // Check if the data is already cached
-        $cacheKey = 'showAll:' . Auth::id();
+        $cacheKey = 'showAll:' . $userid;
         if (Cache::has($cacheKey)) {
             $data = Cache::get($cacheKey);
         } else {
             // Data is not cached, perform the database query
-            $userid = Auth::id();
             $data = Node::where('id_user', $userid)->get();
 
             // Cache the result for future use (you can set an appropriate cache duration)
@@ -76,10 +87,20 @@ class NodeController extends Controller
         return response($data);
     }
 
-    public function showDetailData($id)
+    public function showDetailData(Request $request, $id)
     {
-        // Query user and hardware
-        $userid = Auth::id();
+        $userid = $request->user()["id_user"];
+        // // Get the JWT token from the request (e.g., Authorization header)
+        // $token = JWTAuth::parseToken();
+
+        // // Access the decoded payload data from the token
+        // $payload = $token->getPayload();
+
+        // // Get the user ID from the payload
+        // $userid = $payload->get('sub'); // 'sub' represents the user ID claim in the payload
+
+        // // Check if the data is already cached
+        // $cacheKey = 'showAll:' . $userid;
     
         // Define a unique cache key based on the user ID and node ID
         $cacheKey = 'showDetailData:' . $userid . ':' . $id;
@@ -96,7 +117,7 @@ class NodeController extends Controller
 
                 $cacheExpiration = Carbon::now()->addMinutes(30);
     
-            // Cache the result for future use (you can set an appropriate cache duration)
+            // Cache the result for future use
             Cache::put($cacheKey, $data, $cacheExpiration); // Cache for 30 minutes (adjust as needed)
         }
     
@@ -125,8 +146,16 @@ class NodeController extends Controller
             $message = "Content-Type ".$split." Not Support, only accept application/x-www-form-urlencoded & application/json";
             return response()->json($message, 415);
         }
-        
-        $userid = Auth::id();
+
+        // // Get the JWT token from the request (e.g., Authorization header)
+        // $token = JWTAuth::parseToken();
+
+        // // Access the decoded payload data from the token
+        // $payload = $token->getPayload();
+
+        // // Get the user ID from the payload
+        // $userid = $payload->get('sub'); // 'sub' represents the user ID claim in the payload
+        $userid = $request->user()["id_user"];
 
         $this->validate($request, [
             'name' => 'required|string|max:50',

@@ -41,8 +41,8 @@ class ChannelController extends Controller
             
                     if (count($rows) > 0) {
                         $iduser = $rows[0]->id_user;
-
-                        if (Auth::id() == $iduser) {
+                        $userid = $request->user()["id_user"];
+                        if ($userid == $iduser) {
                             DB::table('channel')->insert([
                                 'value' => $request->value,
                                 'id_sensor' => $request->id_sensor,
