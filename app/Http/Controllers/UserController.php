@@ -52,13 +52,7 @@ class UserController extends Controller
         $password = $request->password;
         $email = $request->email;
 
-        $payload = [
-            "username" => $data["username"],
-            "id_user" => $data["id_user"],
-            "isadmin" => 0
-        ];
-        $token = JWTAuth::customClaims($payload)->fromUser($data);
-
+        $token = Str::random(32);
         $data->token = $token;
 
         if($data->email === '' || $data->password === '' || $data->username === ''){
@@ -102,24 +96,18 @@ class UserController extends Controller
     public function activate(Request $request)
     {
         $token = $request->token;
-        $jwtToken = new Token($token);
-        $decodedToken = JWTAuth::manager()->decode($jwtToken);
-    
-        // Access the token claims
-        $claims = $decodedToken->getClaims();
-        $username = $claims['username']->getValue();
 
-        $findObj = DB::table('user_person')->where('username', $username)
-                                    ->pluck('username')
+        $findObj = DB::table('user_person')->where('token', $token)
+                                    ->pluck('token')
                                     ->first();
 
         if($findObj) {
-            $statusCheck = DB::table('user_person')->where('username', $username)
+            $statusCheck = DB::table('user_person')->where('token', $token)
                                             ->pluck('status')
                                             ->first();
             if($statusCheck === false){
                 $update = DB::table('user_person')->select('*')
-                                            ->where('username', $username)
+                                            ->where('token', $token)
                                             ->update(['status' => 1]);
                 
                 $message = 'Your account has been activated';
