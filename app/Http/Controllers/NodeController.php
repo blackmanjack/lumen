@@ -8,6 +8,7 @@ use App\Models\Hardware;
 use App\Models\Sensor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class NodeController extends Controller
 {
@@ -56,17 +57,23 @@ class NodeController extends Controller
             }
     }
 
-    public function showAll()
+    public function showAll(Request $request)
     {
-            $userid = Auth::id();
+            $username = $request->getUser();
+            $userid = DB::table('user_person')->where('username', $username)
+                                        ->pluck('id_user')
+                                        ->first();
             $data = Node::where('id_user', $userid)->get();
             return response($data);
     }
 
-    public function showDetailData($id)
+    public function showDetailData(Request $request, $id)
     {
             //query user and hardware
-            $userid = Auth::id();
+            $username = $request->getUser();
+            $userid = DB::table('user_person')->where('username', $username)
+                                        ->pluck('id_user')
+                                        ->first();
 
             $data = Node::where('id_user', $userid)
             ->where('id_node', $id)
@@ -97,7 +104,10 @@ class NodeController extends Controller
                 return response()->json($message, 415);
             }
                         
-            $userid = Auth::id();
+            $username = $request->getUser();
+            $userid = DB::table('user_person')->where('username', $username)
+                                        ->pluck('id_user')
+                                        ->first();
 
             $this->validate($request, [
                 'name' => 'required|string|max:50',
