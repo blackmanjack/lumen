@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Carbon;
 
 class NodeController extends Controller
 {
@@ -163,22 +165,34 @@ public function create(Request $request)
     public function showAll()
     {
         $userid = Auth::id();
-        $node = Node::where('id_user', $userid)->get();
-
-        $node->transform(function ($item) {
-            $item->feed->transform(function ($feedItem) {
-                $feedItem->value = array_map(function ($value) {
-                    if (is_numeric($value)) {
-                        return strpos($value, '.') !== false ? floatval($value) : intval($value);
-                    }
-                    return $value;
-                }, explode(',', trim($feedItem->value, '{}')));
     
-                return $feedItem;
+        // Check if the data is already cached
+        $cacheKey = 'showAll:' . $userid;
+        if (Cache::has($cacheKey)) {
+            $node = Cache::get($cacheKey);
+        } else {
+            // Data is not cached, fetch from the database
+            $node = Node::where('id_user', $userid)->get();
+            
+            // Transform the data as before
+            $node->transform(function ($item) {
+                $item->feed->transform(function ($feedItem) {
+                    $feedItem->value = array_map(function ($value) {
+                        if (is_numeric($value)) {
+                            return strpos($value, '.') !== false ? floatval($value) : intval($value);
+                        }
+                        return $value;
+                    }, explode(',', trim($feedItem->value, '{}')));
+        
+                    return $feedItem;
+                });
+        
+                return $item;
             });
-    
-            return $item;
-        });
+        
+            // Cache the result for future use
+            Cache::put($cacheKey, $node, Carbon::now()->addMinutes(30));
+        }
 
         return response($node);
     }
@@ -186,42 +200,47 @@ public function create(Request $request)
 
     public function showDetailData($id)
     {
-        //query user and hardware
+        // Query user and hardware
         $userid = Auth::id();
 
-        // $node = Node::where('id_user', $userid)
-        // ->where('id_node', $id)
-        // ->with('feed')
-        // // ->with('User','Hardware') To do: ->with('Feed')
-        // ->first();
+        // Check if the data is already cached
+        $cacheKey = 'showDetailData:' . $userid . ':' . $id;
+        if (Cache::has($cacheKey)) {
+            $node = Cache::get($cacheKey);
+        } else {
+            // Data is not cached, fetch from the database
+            $node = Node::where('id_user', $userid)
+                ->where('id_node', $id)->get();
 
-        $node = Node::where('id_user', $userid)
-        ->where('id_node', $id)->get();
+            // Transform the data as before
+            $node->transform(function ($item) {
+                $item->feed->transform(function ($feedItem) {
+                    $feedItem->value = array_map(function ($value) {
+                        if (is_numeric($value)) {
+                            return strpos($value, '.') !== false ? floatval($value) : intval($value);
+                        }
+                        return $value;
+                    }, explode(',', trim($feedItem->value, '{}')));
 
-        $node->transform(function ($item) {
-            $item->feed->transform(function ($feedItem) {
-                $feedItem->value = array_map(function ($value) {
-                    if (is_numeric($value)) {
-                        return strpos($value, '.') !== false ? floatval($value) : intval($value);
-                    }
-                    return $value;
-                }, explode(',', trim($feedItem->value, '{}')));
-    
-                return $feedItem;
+                    return $feedItem;
+                });
+
+                return $item;
             });
-    
-            return $item;
-        });
+
+            // Cache the result for future use
+            Cache::put($cacheKey, $node, Carbon::now()->addMinutes(30)); 
+        }
 
         $findNode = Node::where('id_node', $id)->first();
-        if($findNode){
-            if($node){
+        if ($findNode) {
+            if ($node->isNotEmpty()) {
                 return response()->json($node, 200);
-            }else{
+            } else {
                 $message = 'You can\'t see another user\'s node';
                 return response()->json($message, 403);
             }
-        }else{
+        } else {
             $message = 'Id node not found';
             return response()->json($message, 404);
         }
