@@ -34,7 +34,7 @@ class FeedController extends Controller
             $data = $request->all();
 
             $arrayvalue = $data["value"];
-            
+           //dd($arrayvalue, gettype($arrayvalue));
             $dt_value = explode(',', trim($arrayvalue, '{}'));
 
             $res = $findNode;
