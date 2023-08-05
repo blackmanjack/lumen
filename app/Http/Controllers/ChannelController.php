@@ -40,10 +40,7 @@ class ChannelController extends Controller
             if (count($rows) > 0) {
                 $iduser = $rows[0]->id_user;
                 //check userid based on header
-                $username = $request->getUser();
-                $userid = DB::table('user_person')->where('username', $username)
-                                        ->pluck('id_user')
-                                        ->first();
+                $userid = Auth::id();
 
                 if ($userid == $iduser) {
                     DB::table('channel')->insert([

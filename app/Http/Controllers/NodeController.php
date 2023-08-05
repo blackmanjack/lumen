@@ -57,23 +57,17 @@ class NodeController extends Controller
             }
     }
 
-    public function showAll(Request $request)
+    public function showAll()
     {
-            $username = $request->getUser();
-            $userid = DB::table('user_person')->where('username', $username)
-                                        ->pluck('id_user')
-                                        ->first();
+            $userid = Auth::id();
             $data = Node::where('id_user', $userid)->get();
             return response($data);
     }
 
-    public function showDetailData(Request $request, $id)
+    public function showDetailData($id)
     {
             //query user and hardware
-            $username = $request->getUser();
-            $userid = DB::table('user_person')->where('username', $username)
-                                        ->pluck('id_user')
-                                        ->first();
+            $userid = Auth::id();
 
             $data = Node::where('id_user', $userid)
             ->where('id_node', $id)
@@ -103,11 +97,8 @@ class NodeController extends Controller
                 $message = "Content-Type ".$split." Not Support, only accept application/x-www-form-urlencoded & application/json";
                 return response()->json($message, 415);
             }
-                        
-            $username = $request->getUser();
-            $userid = DB::table('user_person')->where('username', $username)
-                                        ->pluck('id_user')
-                                        ->first();
+
+            $userid = Auth::id();
 
             $this->validate($request, [
                 'name' => 'required|string|max:50',
@@ -126,7 +117,7 @@ class NodeController extends Controller
                         'name'=> $request->name,
                         'location'=> $request->location,
                     ]);
-            
+
                     $message = "Success edit node";
                     return response()->json($message, 200);
                 }else{
