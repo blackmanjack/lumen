@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ChannelController extends Controller
 {
@@ -41,7 +42,12 @@ class ChannelController extends Controller
             
                     if (count($rows) > 0) {
                         $iduser = $rows[0]->id_user;
-                        $userid = $request->user()["id_user"];
+                        // Get the JWT token from the request (e.g., Authorization header)
+                        $token = JWTAuth::parseToken();
+                        // Access the decoded payload data from the token
+                        $payload = $token->getPayload();
+                        // Get the user ID from the payload
+                        $userid = $payload->get('sub');
                         if ($userid == $iduser) {
                             DB::table('channel')->insert([
                                 'value' => $request->value,

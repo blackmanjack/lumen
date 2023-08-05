@@ -61,16 +61,14 @@ class NodeController extends Controller
 
     public function showAll(Request $request)
     {
+        // Get the JWT token from the request (e.g., Authorization header)
+        $token = JWTAuth::parseToken();
 
-        $userid = $request->user()["id_user"];
-        // // Get the JWT token from the request (e.g., Authorization header)
-        // $token = JWTAuth::parseToken();
+        // Access the decoded payload data from the token
+        $payload = $token->getPayload();
 
-        // // Access the decoded payload data from the token
-        // $payload = $token->getPayload();
-
-        // // Get the user ID from the payload
-        // $userid = $payload->get('sub');
+        // Get the user ID from the payload
+        $userid = $payload->get('sub');
 
         $data = Node::where('id_user', $userid)->get();
         return response($data);
@@ -78,15 +76,14 @@ class NodeController extends Controller
 
     public function showDetailData(Request $request, $id)
     {
-        $userid = $request->user()["id_user"];
-        // // Get the JWT token from the request (e.g., Authorization header)
-        // $token = JWTAuth::parseToken();
+        // Get the JWT token from the request (e.g., Authorization header)
+        $token = JWTAuth::parseToken();
 
-        // // Access the decoded payload data from the token
-        // $payload = $token->getPayload();
+        // Access the decoded payload data from the token
+        $payload = $token->getPayload();
 
-        // // Get the user ID from the payload
-        // $userid = $payload->get('sub'); // 'sub' represents the user ID claim in the payload
+        // Get the user ID from the payload
+        $userid = $payload->get('sub'); // 'sub' represents the user ID claim in the payload
     
         $data = Node::where('id_user', $userid)
         ->where('id_node', $id)
@@ -117,15 +114,14 @@ class NodeController extends Controller
             return response()->json($message, 415);
         }
 
-        // // Get the JWT token from the request (e.g., Authorization header)
-        // $token = JWTAuth::parseToken();
+        // Get the JWT token from the request (e.g., Authorization header)
+        $token = JWTAuth::parseToken();
 
-        // // Access the decoded payload data from the token
-        // $payload = $token->getPayload();
+        // Access the decoded payload data from the token
+        $payload = $token->getPayload();
 
-        // // Get the user ID from the payload
-        // $userid = $payload->get('sub'); // 'sub' represents the user ID claim in the payload
-        $userid = $request->user()["id_user"];
+        // Get the user ID from the payload
+        $userid = $payload->get('sub'); // 'sub' represents the user ID claim in the payload
 
         $this->validate($request, [
             'name' => 'required|string|max:50',
