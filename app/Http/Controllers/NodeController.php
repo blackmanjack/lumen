@@ -70,7 +70,21 @@ class NodeController extends Controller
         // Get the user ID from the payload
         $userid = $payload->get('sub');
 
+        // Check if the data is already cached
+        $cacheKey = 'all_nodes_' . $userid;
+    
+        $cachedData = Cache::get($cacheKey);
+        if ($cachedData) {
+            // Data is cached, return it directly
+            return response($cachedData);
+        }
+    
         $data = Node::where('id_user', $userid)->get();
+
+        // Cache the data with a 30-minute expiration
+        $expiresAt = Carbon::now()->addMinutes(30);
+        Cache::put($cacheKey, $data, $expiresAt);
+    
         return response($data);
     }
 
@@ -84,21 +98,34 @@ class NodeController extends Controller
 
         // Get the user ID from the payload
         $userid = $payload->get('sub'); // 'sub' represents the user ID claim in the payload
-    
+
+        // Define a unique cache key based on the user ID and node ID
+        $cacheKey = 'node_data_' . $id . '_' . $userid;
+
+        $cachedData = Cache::get($cacheKey);
+        if ($cachedData) {
+            // Data is cached, return it directly
+            return response()->json($cachedData, 200);
+        }
+
         $data = Node::where('id_user', $userid)
-        ->where('id_node', $id)
-        ->with('Hardware', 'Sensor')
-        ->first();
+            ->where('id_node', $id)
+            ->with('Hardware', 'Sensor')
+            ->first();
 
         $findNode = Node::where('id_node', $id)->first();
-        if($findNode){
-            if($data){
+        if ($findNode) {
+            if ($data) {
+                // Cache the data with a 30-minute expiration
+                $expiresAt = Carbon::now()->addMinutes(30);
+                Cache::put($cacheKey, $data, $expiresAt);
+
                 return response()->json($data, 200);
-            }else{
-                $message = 'You can\'t see another user\'s node';
+            } else {
+                $message = "You can't see another user's node";
                 return response()->json($message, 403);
             }
-        }else{
+        } else {
             $message = 'Id node not found';
             return response()->json($message, 404);
         }
