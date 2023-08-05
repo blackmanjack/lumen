@@ -36,7 +36,7 @@ class ChannelController extends Controller
             ->where('sensor.id_sensor', $idSensor)
             ->select('node.id_user')
             ->get();
-
+    
             if (count($rows) > 0) {
                 $iduser = $rows[0]->id_user;
                 //check userid based on header
