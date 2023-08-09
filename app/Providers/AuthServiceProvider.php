@@ -34,7 +34,13 @@ class AuthServiceProvider extends ServiceProvider
             if ($request->header('Authorization')) {
                 $token = explode(' ', $request->header('Authorization'));
                 if($token[0] === 'Basic'){
-                    return User::where('token', $token[1])->first();
+                    $split = explode(':',base64_decode($token[1]));
+                    $username = $split[0];
+                    $password = hash('sha256', $split[1]);
+
+                    return User::where('username', $username)
+                    ->where('password', $password)
+                    ->first();
                 }
                 return;
             }
