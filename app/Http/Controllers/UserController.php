@@ -36,7 +36,7 @@ class UserController extends Controller
         $this->validate($request, [
             'username' => 'required|unique:user_person',
             'email' => 'required|email|unique:user_person',
-            'password' => 'required|min:8'
+            'password' => 'required|min:8|max:50'
         ],
         [   
             'username.required' => 'Parameter username mustn\'t empty',
@@ -47,32 +47,35 @@ class UserController extends Controller
 
         $data = new User();
         $data->username = $request->username;
-        $data->password = hash('sha256',$request->password);
+        $data->password = hash('sha256', $request->password);
         $data->email = $request->email;
+        
         $username = $data->username;
         $password = $request->password;
+        $email = $data->email;
+        $data->token = base64_encode($username.$email.$password);
         
-
         if($data->email === '' || $data->password === '' || $data->username === ''){
             $message = 'Parameter mustn\'t empty';
             return response()->json($message, 400);
         }
         $save = $data->save();
 
-        $payload = [
-            "username" => $data["username"],
-            "id_user" => $data["id_user"],
-            "isadmin" => 0
-        ];
-        
-        $token = JWTAuth::customClaims($payload)->fromUser($data);
+        $appUrl = env('APP_URL');
+        $appPort = env('APP_PORT');
+        $token = $data->token;
 
-        $url = env('APP_URL') . ':' . env('APP_PORT') . '/user/activation?token=' . $token;
+        $url = $appUrl;
+
+        if (!empty($appPort)) {
+            $url .= ':' . $appPort;
+        }
+
+        $url .= '/user/activation?token=' . $token;
 
         if($save){
             $res = ([
                 'message'=> 'Success sign up, check email for verification',
-                'data'=> $data
             ]);
             $mailData = [
                 'id_user' => $data->id_user,
@@ -94,38 +97,31 @@ class UserController extends Controller
     public function activate(Request $request)
     {
         $token = $request->token;
-        $jwtToken = new Token($token);
-        $decodedToken = JWTAuth::manager()->decode($jwtToken);
-    
-        // Access the token claims
-        $claims = $decodedToken->getClaims();
-        $username = $claims['username']->getValue();
+            $findObj = DB::table('user_person')->where('token', $token)
+                                        ->pluck('token')
+                                        ->first();
 
-        $findObj = DB::table('user_person')->where('username', $username)
-                                    ->pluck('username')
-                                    ->first();
-
-        if($findObj) {
-            $statusCheck = DB::table('user_person')->where('username', $username)
-                                            ->pluck('status')
-                                            ->first();
-            if($statusCheck === false){
-                $update = DB::table('user_person')->select('*')
-                                            ->where('username', $username)
-                                            ->update(['status' => 1]);
-                
-                $message = 'Your account has been activated';
-                return response()->json($message, 200);
-            }else{
-                $message = 'Your account has already activated';
-                return response()->json($message, 400);
+            if($findObj) {
+                $statusCheck = DB::table('user_person')->where('token', $token)
+                                                ->pluck('status')
+                                                ->first();
+                if($statusCheck === false){
+                    $update = DB::table('user_person')->select('*')
+                                                ->where('token', $token)
+                                                ->update(['status' => 1]);
+                    
+                    $message = 'Your account has been activated';
+                    return response()->json($message, 200);
+                }else{
+                    $message = 'Your account has already activated';
+                    return response()->json($message, 400);
+                }
+            }else {
+                $res = ([
+                    'message'=> 'Token Not Found',
+                ]);
+                return response()->json($res, 404);
             }
-        }else {
-            $res = ([
-                'message'=> 'Token Not Found',
-            ]);
-            return response()->json($res, 404);
-        }
         
     }
 
@@ -139,49 +135,42 @@ class UserController extends Controller
             'username.required' => 'Parameter username mustn\'t empty',
             'password.required' => 'Password Is Required',
         ]);
-        
-        $credentials = request(['username', 'password']);
 
-        $statusCheck = DB::table('user_person')->where('username', $credentials["username"])
+        $username = $request->input('username');
+        $password = $request->input('password');
+
+        $user = User::where('username', $username)->first();
+        
+        $hashpasswd = DB::table('user_person')->where('username', $username)
+                                        ->pluck('password')
+                                        ->first();
+        $statusCheck = DB::table('user_person')->where('username', $username)
                                         ->pluck('status')
                                         ->first();
+        $isValidPassword = hash('sha256', $password) === $hashpasswd;
 
-        $hashpasswd = hash('sha256', $credentials["password"]);
-
-        $userCheck = User::where('username', $credentials["username"])
-                    ->where('password', $hashpasswd)
-                    ->first();
-                                                    
-        if (!$userCheck) {
+        if($user){
+            if($statusCheck && $isValidPassword){
+                $res = ([
+                    'message'=> 'Login Succesfullly',
+                ]);
+                return response()->json($res, 200);
+            }else if(!$isValidPassword){
+                $res = ([
+                    'message'=> 'Wrong Password',
+                ]);
+                return response()->json($res, 400);
+            }else{
+                $res = ([
+                    'message'=> 'Please activate your account, check your email',
+                ]);
+                return response()->json($res, 400);
+            }
+        }else{
             $res = ([
-                'message'=> 'Username or password doesn\'t match our credentials!',
+                'message'=> 'User Not Found, Wrong Username',
             ]);
             return response()->json($res, 404);
-        }
-
-        if(!$statusCheck){
-            $res = ([
-                'message'=> 'Please activate your account, check your email',
-            ]);
-            return response()->json($res, 400);
-        } else {
-            $user = User::where('username', $credentials["username"])->first();
-            
-            $isAdmin = User::where('username', $credentials["username"])
-                                        ->pluck('isadmin')
-                                        ->first();
-            $payload = [
-                "username" => $user["username"],
-                "id_user" => $user["id_user"],
-                "isadmin" => $isAdmin
-            ];
-            
-            $newtoken = JWTAuth::customClaims($payload)->fromUser($user);
-            $res = ([
-                'message'=> 'Login Succesfullly',
-                'token' => $newtoken,
-            ]);
-            return response()->json($res, 200);
         }
     }
 
@@ -189,26 +178,24 @@ class UserController extends Controller
     {
         $this->validate($request, [
             'username' => 'required',
-            'email' => 'required'
+            'email' => 'required|email'
         ]);
         $username = $request->username;
         $email = $request->email;
 
         $emailFind = User::where('email', $email)->first();
-
         $userFind = User::where('email', $email)->pluck('username')->first();
 
         if($username !== '' || $email !== ''){
             if($username === $userFind){
                 //update random passwd and send to email's user
                 $newpasswd = Str::random(10);
-                $emailFind->password = hash('sha256',$newpasswd);
+                $emailFind->password = hash('sha256', $newpasswd);
                 
                 $update = $emailFind->save();
 
                 $res = ([
                     'message'=> "New password request sent. Check email for new password",
-                    'data' => $emailFind,
                 ]);
                 
                 $mailData = [
@@ -236,46 +223,45 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $userid = Auth::id();
-        if(intval($id) !== $userid){
-            $message = "Can't edit another user's account";
-            return response()->json($message, 403);
-        }
+            if(intval($id) !== $userid){
+                $message = "Can't edit another user's account";
+                return response()->json($message, 403);
+            }
+            
+            //only accept headers application/x-www-form-urlencoded & application/json"
+            $contentType = $request->headers->get('Content-Type');
+            $split = explode(';', $contentType)[0];
+            if($split !== "application/x-www-form-urlencoded" && $split !== "application/json"){
+                $message = "Content-Type ".$split." Not Support, only accept application/x-www-form-urlencoded & application/json";
+                return response()->json($message, 415);
+            }
 
-        //only accept headers application/x-www-form-urlencoded & application/json
-        $contentType = $request->headers->get('Content-Type');
-        $split = explode(';', $contentType)[0];
-        if($split !== "application/x-www-form-urlencoded" && $split !== "application/json"){
-            $message = "Content-Type ".$split." Not Support, only accept application/x-www-form-urlencoded & application/json";
-            return response()->json($message, 415);
-        }
-        
-        $this->validate($request, [
-            'oldpassword' => 'required',
-            'newpassword' => 'required|min:8'
-        ]);
-
-        $oldpasswd = $request->oldpassword;
-        $newpasswd = $request->newpassword;
-
-        $data = User::where('id_user', $userid)->first();
-        $username = DB::table('user_person')->where('id_user', $userid)->pluck('username')->first();
-        $hashpasswd = DB::table('user_person')->where('id_user', $userid)->pluck('password')->first();
-        $isValidPassword = hash('sha256',$oldpasswd) === $hashpasswd;
-        
-        if($isValidPassword){
-            $data->password = hash('sha256',$newpasswd);
-
-            $update = $data->save();
-
-            $res = ([
-                'message' => "Success change password",
-                'data' => $data
+            $this->validate($request, [
+                'oldpassword' => 'required|max:50',
+                'newpassword' => 'required|min:8|max:50'
             ]);
-            return response()->json($res, 200);
-        }else{
-            $message = "Old password is Invalid";
-            return response()->json($message, 400);
-        }
+
+            $oldpasswd = hash('sha256', $request->oldpassword);
+            $newpasswd = $request->newpassword;
+
+            $data = User::where('id_user', $userid)->first();
+            $username = DB::table('user_person')->where('id_user', $userid)->pluck('username')->first();
+            $hashpasswd = DB::table('user_person')->where('id_user', $userid)->pluck('password')->first();
+            $isValidPassword = $oldpasswd === $hashpasswd;
+            
+            if($isValidPassword){
+                $data->password = hash('sha256', $newpasswd);
+                $update = $data->save();
+
+                $res = ([
+                    'message' => "Success change password",
+                    'data' => $data
+                ]);
+                return response()->json($res, 200);
+            }else{
+                $message = "Old password is Invalid";
+                return response()->json($message, 400);
+            }
     }
 
     public function delete($id)
