@@ -53,6 +53,7 @@ class Authenticate
         }
 
         if ($this->auth->guard($guard)->guest()) {
+            dd('here', $this->auth);
             return response('Unauthorized.', 401);
         }
 
