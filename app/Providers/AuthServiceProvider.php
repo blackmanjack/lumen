@@ -32,6 +32,8 @@ class AuthServiceProvider extends ServiceProvider
 
         $this->app['auth']->viaRequest('api', function ($request) {
             if ($request->header('Authorization')) {
+
+                dd($request->header('Authorization'),$token,  $token[0]);
                 $token = explode(' ', $request->header('Authorization'));
                 if($token[0] === 'Basic'){
                     $split = explode(':',base64_decode($token[1]));
