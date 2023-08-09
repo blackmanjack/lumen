@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Token;
 use App\Models\User;
@@ -22,13 +23,10 @@ class AdminController extends Controller
     public function showAllDataUser(Request $request)
     {
         //check admin role
-        $token = explode(' ', $request->header('Authorization'));
-        $jwtToken = new Token($token[1]);
-        $decodedToken = JWTAuth::manager()->decode($jwtToken);
-    
-        // Access the token claims
-        $claims = $decodedToken->getClaims();
-        $isAdmin = $claims['isadmin']->getValue();
+        $username = $request->getUser();
+        $isAdmin = DB::table('user_person')->where('username', $username)
+                                        ->pluck('isadmin')
+                                        ->first();
 
         if(!$isAdmin){
             $message = "You are not admin";
@@ -43,13 +41,10 @@ class AdminController extends Controller
     public function showDetailDataUser(Request $request, $id)
     {
         //check admin role
-        $token = explode(' ', $request->header('Authorization'));
-        $jwtToken = new Token($token[1]);
-        $decodedToken = JWTAuth::manager()->decode($jwtToken);
-
-        // Access the token claims
-        $claims = $decodedToken->getClaims();
-        $isAdmin = $claims['isadmin']->getValue();
+        $username = $request->getUser();
+        $isAdmin = DB::table('user_person')->where('username', $username)
+                                        ->pluck('isadmin')
+                                        ->first();
 
         if(!$isAdmin){
             $message = "You are not admin";
