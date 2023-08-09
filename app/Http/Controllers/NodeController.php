@@ -162,9 +162,12 @@ public function create(Request $request)
         ], 201);
 }
 
-    public function showAll()
+    public function showAll(Request $request)
     {
-        $userid = Auth::id();
+        $username = $request->getUser();
+        $userid = DB::table('user_person')->where('username', $username)
+                                        ->pluck('id_user')
+                                        ->first();
     
         // Check if the data is already cached
         $cacheKey = 'showAll:' . $userid;
@@ -198,10 +201,13 @@ public function create(Request $request)
     }
 
 
-    public function showDetailData($id)
+    public function showDetailData(Request $request,$id)
     {
         // Query user and hardware
-        $userid = Auth::id();
+        $username = $request->getUser();
+        $userid = DB::table('user_person')->where('username', $username)
+                                        ->pluck('id_user')
+                                        ->first();
 
         // Check if the data is already cached
         $cacheKey = 'showDetailData:' . $userid . ':' . $id;
@@ -256,7 +262,10 @@ public function create(Request $request)
             return response()->json($message, 415);
         }
         
-        $userid = Auth::id();
+        $username = $request->getUser();
+        $userid = DB::table('user_person')->where('username', $username)
+                                        ->pluck('id_user')
+                                        ->first();
 
         $findNode = Node::where('id_node', $id)->first();
 
