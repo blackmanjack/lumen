@@ -162,7 +162,11 @@ public function create(Request $request)
 
     public function showAll()
     {
-        $userid = Auth::id();
+        // $userid = Auth::id();
+        $username = $request->getUser();
+        $userid = DB::table('user_person')->where('username', $username)
+                                        ->pluck('id_user')
+                                        ->first();
         $node = Node::where('id_user', $userid)->get();
 
         $node->transform(function ($item) {
@@ -187,13 +191,11 @@ public function create(Request $request)
     public function showDetailData($id)
     {
         //query user and hardware
-        $userid = Auth::id();
-
-        // $node = Node::where('id_user', $userid)
-        // ->where('id_node', $id)
-        // ->with('feed')
-        // // ->with('User','Hardware') To do: ->with('Feed')
-        // ->first();
+        // $userid = Auth::id();
+        $username = $request->getUser();
+        $userid = DB::table('user_person')->where('username', $username)
+                                        ->pluck('id_user')
+                                        ->first();
 
         $node = Node::where('id_user', $userid)
         ->where('id_node', $id)->get();
@@ -237,7 +239,11 @@ public function create(Request $request)
             return response()->json($message, 415);
         }
         
-        $userid = Auth::id();
+        // $userid = Auth::id();
+        $username = $request->getUser();
+        $userid = DB::table('user_person')->where('username', $username)
+                                        ->pluck('id_user')
+                                        ->first();
 
         $findNode = Node::where('id_node', $id)->first();
 
