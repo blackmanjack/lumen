@@ -160,7 +160,7 @@ public function create(Request $request)
         ], 201);
 }
 
-    public function showAll()
+    public function showAll(Request $request)
     {
         // $userid = Auth::id();
         $username = $request->getUser();
@@ -188,7 +188,7 @@ public function create(Request $request)
     }
 
 
-    public function showDetailData($id)
+    public function showDetailData(Request $request,$id)
     {
         //query user and hardware
         // $userid = Auth::id();
