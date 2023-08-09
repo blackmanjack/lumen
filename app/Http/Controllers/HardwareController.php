@@ -32,13 +32,10 @@ class HardwareController extends Controller
             'description' => 'required'
         ]);
         //check admin role
-        $token = explode(' ', $request->header('Authorization'));
-        $jwtToken = new Token($token[1]);
-        $decodedToken = JWTAuth::manager()->decode($jwtToken);
-    
-        // Access the token claims
-        $claims = $decodedToken->getClaims();
-        $isAdmin = $claims['isadmin']->getValue();
+        $username = $request->getUser();
+        $isAdmin = DB::table('user_person')->where('username', $username)
+                                        ->pluck('isadmin')
+                                        ->first();
 
         if(!$isAdmin){
             $message = "You are not admin";
@@ -83,13 +80,10 @@ class HardwareController extends Controller
     public function update(Request $request, $id)
     {
         //check admin role
-        $token = explode(' ', $request->header('Authorization'));
-        $jwtToken = new Token($token[1]);
-        $decodedToken = JWTAuth::manager()->decode($jwtToken);
-    
-        // Access the token claims
-        $claims = $decodedToken->getClaims();
-        $isAdmin = $claims['isadmin']->getValue();
+        $username = $request->getUser();
+        $isAdmin = DB::table('user_person')->where('username', $username)
+                                        ->pluck('isadmin')
+                                        ->first();
 
         if(!$isAdmin){
             $message = "You are not admin";
