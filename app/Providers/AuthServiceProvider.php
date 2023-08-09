@@ -39,11 +39,6 @@ class AuthServiceProvider extends ServiceProvider
                     $username = $split[0];
                     $password = hash('sha256', $split[1]);
 
-                    $tes = User::where('username', $username)
-                    ->where('password', $password)
-                    ->first();
-
-                    dd($tes);
                     return User::where('username', $username)
                     ->where('password', $password)
                     ->first();
