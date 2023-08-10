@@ -213,6 +213,10 @@ public function create(Request $request)
             if (!$findNode) {
                 return response()->json('Id node not found', 404);
             }
+            // Check if the authenticated user can access the node
+            if ($findNode->id_user !== $userid) {
+                return response()->json("You can't see another user's node", 403);
+            }
             // Data is not cached, fetch from the database
             $node = Node::where('id_user', $userid)
                 ->where('id_node', $id)->get();
@@ -234,10 +238,6 @@ public function create(Request $request)
 
             // Cache the result for future use
             Cache::put($cacheKey, $node, Carbon::now()->addMinutes(30)); 
-        }
-         // Check if the authenticated user can access the node
-        if ($node->id_user !== $userid) {
-            return response()->json("You can't see another user's node", 403);
         }
         
         return response()->json($node, 200);
