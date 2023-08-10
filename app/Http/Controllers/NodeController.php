@@ -208,10 +208,14 @@ public function create(Request $request)
         if (Cache::has($cacheKey)) {
             $node = Cache::get($cacheKey);
         } else {
+            //checking node
+            $findNode = Node::where('id_node', $id)->first();
+            if (!$findNode) {
+                return response()->json('Id node not found', 404);
+            }
             // Data is not cached, fetch from the database
             $node = Node::where('id_user', $userid)
                 ->where('id_node', $id)->get();
-
             // Transform the data as before
             $node->transform(function ($item) {
                 $item->feed->transform(function ($feedItem) {
@@ -231,19 +235,12 @@ public function create(Request $request)
             // Cache the result for future use
             Cache::put($cacheKey, $node, Carbon::now()->addMinutes(30)); 
         }
-
-        $findNode = Node::where('id_node', $id)->first();
-        if ($findNode) {
-            if ($node->isNotEmpty()) {
-                return response()->json($node, 200);
-            } else {
-                $message = 'You can\'t see another user\'s node';
-                return response()->json($message, 403);
-            }
-        } else {
-            $message = 'Id node not found';
-            return response()->json($message, 404);
+         // Check if the authenticated user can access the node
+        if ($node->id_user !== $userid) {
+            return response()->json("You can't see another user's node", 403);
         }
+        
+        return response()->json($node, 200);
     }
 
     public function update(Request $request, $id)
