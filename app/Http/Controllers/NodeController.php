@@ -62,20 +62,18 @@ class NodeController extends Controller
     public function showAll()
     {
         $userid = Auth::id();
-        $cacheKey = 'all_nodes_' . $userid;
-    
-        $cachedData = Cache::get($cacheKey);
-        if ($cachedData) {
-            // Data is cached, return it directly
-            return response($cachedData);
+        // Check if the data is already cached
+        $cacheKey = 'showAll:' . $userid;
+        if (Cache::has($cacheKey)) {
+            $data = Cache::get($cacheKey);
+        } else {
+            // Data is not cached, perform the database query
+            $data = Node::where('id_user', $userid)->get();
+
+            // Cache the result for future use (you can set an appropriate cache duration)
+            Cache::put($cacheKey, $data, Carbon::now()->addMinutes(30)); // Cache for 30 minutes (adjust as needed)
         }
-    
-        $data = Node::where('id_user', $userid)->get();
-    
-        // Cache the data with a 30-minute expiration
-        $expiresAt = Carbon::now()->addMinutes(30);
-        Cache::put($cacheKey, $data, $expiresAt);
-    
+
         return response($data);
     }
 
