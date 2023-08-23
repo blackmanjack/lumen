@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Token;
+// use Tymon\JWTAuth\Facades\JWTAuth;
+// use Tymon\JWTAuth\Token;
 
 
 class UserController extends Controller
@@ -53,7 +53,6 @@ class UserController extends Controller
         $username = $data->username;
         $password = $request->password;
         $email = $data->email;
-        $data->token = base64_encode($username.$email.$password);
         
         if($data->email === '' || $data->password === '' || $data->username === ''){
             $message = 'Parameter mustn\'t empty';
@@ -63,7 +62,8 @@ class UserController extends Controller
 
         $appUrl = env('APP_URL');
         $appPort = env('APP_PORT');
-        $token = $data->token;
+        // $token = $data->token;
+        $token = base64_encode($username.'|'.$email);
 
         $url = $appUrl;
 
@@ -97,17 +97,25 @@ class UserController extends Controller
     public function activate(Request $request)
     {
         $token = $request->token;
-            $findObj = DB::table('user_person')->where('token', $token)
-                                        ->pluck('token')
-                                        ->first();
+        $decodeToken = explode('|', base64_decode($token));
+        // dd($decodeToken[0]);
+        $username = explode('|', $decodeToken[0]);
+        $email = explode('|', $decodeToken[1]);
+        $findObj = DB::table('user_person')->where('username', $username)
+                                    ->where('email', $email)
+                                    ->first();
 
             if($findObj) {
-                $statusCheck = DB::table('user_person')->where('token', $token)
-                                                ->pluck('status')
-                                                ->first();
+                $statusCheck = DB::table('user_person')
+                                ->where('username', $username)
+                                ->where('email', $email)
+                                ->pluck('status')
+                                ->first();
+                                
                 if($statusCheck === false){
                     $update = DB::table('user_person')->select('*')
-                                                ->where('token', $token)
+                                                ->where('username', $username)
+                                                ->where('email', $email)
                                                 ->update(['status' => 1]);
                     
                     $message = 'Your account has been activated';
