@@ -8,8 +8,9 @@ use App\Models\Node;
 use App\Models\Hardware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Token;
+use Illuminate\Support\Facades\DB;
+// use Tymon\JWTAuth\Facades\JWTAuth;
+// use Tymon\JWTAuth\Token;
 
 class HardwareController extends Controller
 {
