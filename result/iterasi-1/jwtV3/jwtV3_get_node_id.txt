@@ -1,0 +1,375 @@
+[ GET /node/1 200][1]
+
+{       "transactions":                         3260,
+        "availability":                       100.00,
+        "elapsed_time":                        59.33,
+        "data_transferred":                     0.91,
+        "response_time":                        3.54,
+        "transaction_rate":                    54.95,
+        "throughput":                           0.02,
+        "concurrency":                        194.35,
+        "successful_transactions":              3260,
+        "failed_transactions":                     0,
+        "longest_transaction":                  3.82,
+        "shortest_transaction":                 0.03
+}
+[ GET /node/1 200][2]
+
+{       "transactions":                         3254,
+        "availability":                       100.00,
+        "elapsed_time":                        59.98,
+        "data_transferred":                     0.91,
+        "response_time":                        3.58,
+        "transaction_rate":                    54.25,
+        "throughput":                           0.02,
+        "concurrency":                        193.99,
+        "successful_transactions":              3254,
+        "failed_transactions":                     0,
+        "longest_transaction":                  3.96,
+        "shortest_transaction":                 0.02
+}
+[ GET /node/1 200][3]
+
+{       "transactions":                         3305,
+        "availability":                       100.00,
+        "elapsed_time":                        59.98,
+        "data_transferred":                     0.92,
+        "response_time":                        3.52,
+        "transaction_rate":                    55.10,
+        "throughput":                           0.02,
+        "concurrency":                        193.87,
+        "successful_transactions":              3305,
+        "failed_transactions":                     0,
+        "longest_transaction":                  3.87,
+        "shortest_transaction":                 0.03
+}
+[ GET /node/1 200][4]
+
+{       "transactions":                         3308,
+        "availability":                       100.00,
+        "elapsed_time":                        59.98,
+        "data_transferred":                     0.92,
+        "response_time":                        3.52,
+        "transaction_rate":                    55.15,
+        "throughput":                           0.02,
+        "concurrency":                        193.88,
+        "successful_transactions":              3308,
+        "failed_transactions":                     0,
+        "longest_transaction":                  3.95,
+        "shortest_transaction":                 0.03
+}
+[ GET /node/1 200][5]
+
+{       "transactions":                         3266,
+        "availability":                       100.00,
+        "elapsed_time":                        59.98,
+        "data_transferred":                     0.91,
+        "response_time":                        3.56,
+        "transaction_rate":                    54.45,
+        "throughput":                           0.02,
+        "concurrency":                        193.82,
+        "successful_transactions":              3266,
+        "failed_transactions":                     0,
+        "longest_transaction":                  3.86,
+        "shortest_transaction":                 0.03
+}
+[ GET /node/1 400][1]
+
+{       "transactions":                         3304,
+        "availability":                       100.00,
+        "elapsed_time":                        59.97,
+        "data_transferred":                     0.92,
+        "response_time":                        6.84,
+        "transaction_rate":                    55.09,
+        "throughput":                           0.02,
+        "concurrency":                        376.66,
+        "successful_transactions":              3304,
+        "failed_transactions":                     0,
+        "longest_transaction":                  7.59,
+        "shortest_transaction":                 0.07
+}
+[ GET /node/1 400][2]
+
+{       "transactions":                         3298,
+        "availability":                       100.00,
+        "elapsed_time":                        59.97,
+        "data_transferred":                     0.92,
+        "response_time":                        6.84,
+        "transaction_rate":                    54.99,
+        "throughput":                           0.02,
+        "concurrency":                        376.20,
+        "successful_transactions":              3298,
+        "failed_transactions":                     0,
+        "longest_transaction":                  7.54,
+        "shortest_transaction":                 0.03
+}
+[ GET /node/1 400][3]
+
+{       "transactions":                         3238,
+        "availability":                       100.00,
+        "elapsed_time":                        59.96,
+        "data_transferred":                     0.90,
+        "response_time":                        6.95,
+        "transaction_rate":                    54.00,
+        "throughput":                           0.02,
+        "concurrency":                        375.44,
+        "successful_transactions":              3238,
+        "failed_transactions":                     0,
+        "longest_transaction":                  7.80,
+        "shortest_transaction":                 0.04
+}
+[ GET /node/1 400][4]
+
+{       "transactions":                         3301,
+        "availability":                       100.00,
+        "elapsed_time":                        59.97,
+        "data_transferred":                     0.92,
+        "response_time":                        6.82,
+        "transaction_rate":                    55.04,
+        "throughput":                           0.02,
+        "concurrency":                        375.21,
+        "successful_transactions":              3301,
+        "failed_transactions":                     0,
+        "longest_transaction":                  7.51,
+        "shortest_transaction":                 0.04
+}
+[ GET /node/1 400][5]
+
+{       "transactions":                         3280,
+        "availability":                       100.00,
+        "elapsed_time":                        59.96,
+        "data_transferred":                     0.91,
+        "response_time":                        6.86,
+        "transaction_rate":                    54.70,
+        "throughput":                           0.02,
+        "concurrency":                        375.41,
+        "successful_transactions":              3280,
+        "failed_transactions":                     0,
+        "longest_transaction":                  7.56,
+        "shortest_transaction":                 0.03
+}
+[ GET /node/1 600][1]
+
+{       "transactions":                         3241,
+        "availability":                       100.00,
+        "elapsed_time":                        59.97,
+        "data_transferred":                     0.90,
+        "response_time":                       10.07,
+        "transaction_rate":                    54.04,
+        "throughput":                           0.02,
+        "concurrency":                        544.17,
+        "successful_transactions":              3241,
+        "failed_transactions":                     0,
+        "longest_transaction":                 11.44,
+        "shortest_transaction":                 0.05
+}
+[ GET /node/1 600][2]
+
+{       "transactions":                         3290,
+        "availability":                       100.00,
+        "elapsed_time":                        59.97,
+        "data_transferred":                     0.92,
+        "response_time":                        9.97,
+        "transaction_rate":                    54.86,
+        "throughput":                           0.02,
+        "concurrency":                        546.71,
+        "successful_transactions":              3290,
+        "failed_transactions":                     0,
+        "longest_transaction":                 11.24,
+        "shortest_transaction":                 0.57
+}
+[ GET /node/1 600][3]
+
+{       "transactions":                         3261,
+        "availability":                       100.00,
+        "elapsed_time":                        59.96,
+        "data_transferred":                     0.91,
+        "response_time":                       10.07,
+        "transaction_rate":                    54.39,
+        "throughput":                           0.02,
+        "concurrency":                        547.50,
+        "successful_transactions":              3261,
+        "failed_transactions":                     0,
+        "longest_transaction":                 11.26,
+        "shortest_transaction":                 0.52
+}
+[ GET /node/1 600][4]
+
+{       "transactions":                         3285,
+        "availability":                       100.00,
+        "elapsed_time":                        59.96,
+        "data_transferred":                     0.91,
+        "response_time":                        9.97,
+        "transaction_rate":                    54.79,
+        "throughput":                           0.02,
+        "concurrency":                        546.37,
+        "successful_transactions":              3285,
+        "failed_transactions":                     0,
+        "longest_transaction":                 11.52,
+        "shortest_transaction":                 0.16
+}
+[ GET /node/1 600][5]
+
+{       "transactions":                         3253,
+        "availability":                       100.00,
+        "elapsed_time":                        59.96,
+        "data_transferred":                     0.91,
+        "response_time":                       10.03,
+        "transaction_rate":                    54.25,
+        "throughput":                           0.02,
+        "concurrency":                        543.99,
+        "successful_transactions":              3253,
+        "failed_transactions":                     0,
+        "longest_transaction":                 11.85,
+        "shortest_transaction":                 1.03
+}
+[ GET /node/1 800][1]
+
+{       "transactions":                         3329,
+        "availability":                       100.00,
+        "elapsed_time":                        59.99,
+        "data_transferred":                     0.93,
+        "response_time":                       12.64,
+        "transaction_rate":                    55.49,
+        "throughput":                           0.02,
+        "concurrency":                        701.49,
+        "successful_transactions":              3329,
+        "failed_transactions":                     0,
+        "longest_transaction":                 14.64,
+        "shortest_transaction":                 0.89
+}
+[ GET /node/1 800][2]
+
+{       "transactions":                         3033,
+        "availability":                       100.00,
+        "elapsed_time":                        59.95,
+        "data_transferred":                     0.84,
+        "response_time":                       13.82,
+        "transaction_rate":                    50.59,
+        "throughput":                           0.01,
+        "concurrency":                        698.98,
+        "successful_transactions":              3033,
+        "failed_transactions":                     0,
+        "longest_transaction":                 18.87,
+        "shortest_transaction":                 4.59
+}
+[ GET /node/1 800][3]
+
+{       "transactions":                         3085,
+        "availability":                       100.00,
+        "elapsed_time":                        59.95,
+        "data_transferred":                     0.86,
+        "response_time":                       13.69,
+        "transaction_rate":                    51.46,
+        "throughput":                           0.01,
+        "concurrency":                        704.56,
+        "successful_transactions":              3085,
+        "failed_transactions":                     0,
+        "longest_transaction":                 19.78,
+        "shortest_transaction":                 5.20
+}
+[ GET /node/1 800][4]
+
+{       "transactions":                         3023,
+        "availability":                       100.00,
+        "elapsed_time":                        59.96,
+        "data_transferred":                     0.84,
+        "response_time":                       13.91,
+        "transaction_rate":                    50.42,
+        "throughput":                           0.01,
+        "concurrency":                        701.28,
+        "successful_transactions":              3023,
+        "failed_transactions":                     0,
+        "longest_transaction":                 18.98,
+        "shortest_transaction":                 4.49
+}
+[ GET /node/1 800][5]
+
+{       "transactions":                         3110,
+        "availability":                       100.00,
+        "elapsed_time":                        59.95,
+        "data_transferred":                     0.87,
+        "response_time":                       13.59,
+        "transaction_rate":                    51.88,
+        "throughput":                           0.01,
+        "concurrency":                        705.15,
+        "successful_transactions":              3110,
+        "failed_transactions":                     0,
+        "longest_transaction":                 18.55,
+        "shortest_transaction":                 3.96
+}
+[ GET /node/1 1000][1]
+
+{       "transactions":                         3054,
+        "availability":                       100.00,
+        "elapsed_time":                        59.96,
+        "data_transferred":                     0.85,
+        "response_time":                       16.69,
+        "transaction_rate":                    50.93,
+        "throughput":                           0.01,
+        "concurrency":                        849.85,
+        "successful_transactions":              3054,
+        "failed_transactions":                     0,
+        "longest_transaction":                 22.51,
+        "shortest_transaction":                 4.31
+}
+[ GET /node/1 1000][2]
+
+{       "transactions":                         2787,
+        "availability":                       100.00,
+        "elapsed_time":                        59.94,
+        "data_transferred":                     0.78,
+        "response_time":                       18.10,
+        "transaction_rate":                    46.50,
+        "throughput":                           0.01,
+        "concurrency":                        841.66,
+        "successful_transactions":              2787,
+        "failed_transactions":                     0,
+        "longest_transaction":                 26.78,
+        "shortest_transaction":                 8.11
+}
+[ GET /node/1 1000][3]
+
+{       "transactions":                         2822,
+        "availability":                       100.00,
+        "elapsed_time":                        59.96,
+        "data_transferred":                     0.79,
+        "response_time":                       17.97,
+        "transaction_rate":                    47.06,
+        "throughput":                           0.01,
+        "concurrency":                        845.98,
+        "successful_transactions":              2822,
+        "failed_transactions":                     0,
+        "longest_transaction":                 26.69,
+        "shortest_transaction":                 8.50
+}
+[ GET /node/1 1000][4]
+
+{       "transactions":                         2814,
+        "availability":                       100.00,
+        "elapsed_time":                        59.94,
+        "data_transferred":                     0.78,
+        "response_time":                       18.01,
+        "transaction_rate":                    46.95,
+        "throughput":                           0.01,
+        "concurrency":                        845.37,
+        "successful_transactions":              2814,
+        "failed_transactions":                     0,
+        "longest_transaction":                 25.98,
+        "shortest_transaction":                 8.19
+}
+[ GET /node/1 1000][5]
+
+{       "transactions":                         2800,
+        "availability":                       100.00,
+        "elapsed_time":                        59.95,
+        "data_transferred":                     0.78,
+        "response_time":                       18.07,
+        "transaction_rate":                    46.71,
+        "throughput":                           0.01,
+        "concurrency":                        843.77,
+        "successful_transactions":              2800,
+        "failed_transactions":                     0,
+        "longest_transaction":                 26.44,
+        "shortest_transaction":                 8.37
+}
